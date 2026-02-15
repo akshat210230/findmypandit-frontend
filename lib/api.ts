@@ -7,7 +7,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Automatically add token to every request
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token')
@@ -29,6 +28,7 @@ export const getServices = () => api.get('/services')
 export const searchPandits = (params?: any) => api.get('/pandits/search', { params })
 export const getPandit = (id: string) => api.get(`/pandits/${id}`)
 export const createPanditProfile = (data: any) => api.post('/pandits/profile', data)
+export const updatePanditProfile = (data: any) => api.put('/pandits/profile', data)
 
 // Bookings
 export const createBooking = (data: any) => api.post('/bookings', data)
