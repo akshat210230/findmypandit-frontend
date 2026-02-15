@@ -147,11 +147,12 @@ export default function BookingPage() {
       const res = await createBooking({
         panditId,
         serviceId: selectedService,
-        date: selectedDate,
-        timeSlot: selectedTime,
-        locationAddress: address,
-        attendeesCount: parseInt(attendees) || 10,
-        notes: notes || undefined,
+        bookingDate: selectedDate,
+        startTime: selectedTime,
+        address: address,
+        city: 'Indore',
+        totalAmount: pandit.priceMin || 2000,
+        specialRequests: notes || undefined,
         choghadiya: selectedChoghadiya || undefined,
       })
       setBookingResult(res.data)
