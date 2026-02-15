@@ -96,12 +96,20 @@ export default function PanditProfilePage() {
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-orange-600">₹{pandit.priceMin} - ₹{pandit.priceMax}</p>
-            <button
-              onClick={() => setShowBooking(!showBooking)}
-              className="mt-2 bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700 transition"
-            >
-              {showBooking ? 'Cancel' : 'Book Now'}
-            </button>
+<button
+  className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition"
+  onClick={() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      alert('Please login first to book a pandit')
+      router.push('/login')
+      return
+    }
+    router.push(`/book/${id}`)
+  }}
+>
+  Book Now
+</button>
           </div>
         </div>
 
