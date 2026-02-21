@@ -1,6 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getPandit, getServices, createBooking } from '@/lib/api'
 
 // ─── CHOGHADIYA CALCULATOR ─────────────────────────
@@ -17,75 +17,71 @@ const CHOGHADIYA_INFO: Record<string, { type: string; color: string; label: stri
   Udveg: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Udveg (Anxiety)' },
 }
 
-function getDayOfWeek(date: Date): number {
-  return date.getDay()
-}
-
 function getChoghadiyaForDate(date: Date) {
-  const day = getDayOfWeek(date)
-  // Each day of the week starts with a different Choghadiya
-  // Sunday=0: Sun, Monday=1: Moon, etc.
-  const dayStartIndex = [4, 1, 5, 2, 6, 3, 0][day] // Traditional starting positions
-  const nightStartIndex = [3, 0, 4, 1, 5, 2, 6][day]
-
-  // Approximate sunrise 6:00 AM, sunset 6:00 PM (Indore)
-  const sunrise = 6
-  const sunset = 18
-  const dayDuration = (sunset - sunrise) / 8  // 8 periods in day
-  const nightDuration = (24 - sunset + sunrise) / 8  // 8 periods in night
+  const day = date.getDay()
+  const dayStartIndex = [4, 1, 5, 2, 6, 3, 0][day]
+  const sunrise = 6, sunset = 18
+  const dayDuration = (sunset - sunrise) / 8
 
   const periods = []
-
-  // Day periods (sunrise to sunset)
   for (let i = 0; i < 8; i++) {
     const startHour = sunrise + i * dayDuration
     const endHour = startHour + dayDuration
     const name = CHOGHADIYA_DAY[(dayStartIndex + i) % 7]
-    periods.push({
-      name,
-      startTime: formatHour(startHour),
-      endTime: formatHour(endHour),
-      startHour,
-      endHour,
-      isDay: true,
-      ...CHOGHADIYA_INFO[name],
-    })
+    periods.push({ name, startTime: fmtHr(startHour), endTime: fmtHr(endHour), startHour, isDay: true, ...CHOGHADIYA_INFO[name] })
   }
-
-  // Night periods (sunset to next sunrise)
-  for (let i = 0; i < 8; i++) {
-    const startHour = sunset + i * nightDuration
-    const adjustedStart = startHour >= 24 ? startHour - 24 : startHour
-    const endHour = startHour + nightDuration
-    const adjustedEnd = endHour >= 24 ? endHour - 24 : endHour
-    const name = CHOGHADIYA_NIGHT[(nightStartIndex + i) % 7]
-    periods.push({
-      name,
-      startTime: formatHour(adjustedStart),
-      endTime: formatHour(adjustedEnd),
-      startHour: adjustedStart,
-      endHour: adjustedEnd,
-      isDay: false,
-      ...CHOGHADIYA_INFO[name],
-    })
-  }
-
   return periods
 }
 
-function formatHour(h: number): string {
+function fmtHr(h: number): string {
   const hours = Math.floor(h) % 24
-  const minutes = Math.round((h - Math.floor(h)) * 60)
-  const period = hours >= 12 ? 'PM' : 'AM'
-  const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours
-  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
+  const mins = Math.round((h - Math.floor(h)) * 60)
+  const p = hours >= 12 ? 'PM' : 'AM'
+  const d = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours
+  return `${d}:${mins.toString().padStart(2, '0')} ${p}`
+}
+
+// ─── GOOGLE PLACES AUTOCOMPLETE ─────────────────
+function AddressInput({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const autocompleteRef = useRef<any>(null)
+
+  useEffect(() => {
+    // Check if Google Maps script is loaded
+    if (typeof window !== 'undefined' && (window as any).google?.maps?.places && inputRef.current && !autocompleteRef.current) {
+      autocompleteRef.current = new (window as any).google.maps.places.Autocomplete(inputRef.current, {
+        componentRestrictions: { country: 'in' },
+        types: ['address'],
+      })
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current.getPlace()
+        if (place?.formatted_address) {
+          onChange(place.formatted_address)
+        }
+      })
+    }
+  }, [onChange])
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder="Start typing your address..."
+      className="w-full px-4 py-3 rounded-xl text-sm"
+      style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }}
+    />
+  )
 }
 
 // ─── BOOKING PAGE ──────────────────────────────────
-export default function BookingPage() {
+function BookingContent() {
   const { panditId } = useParams()
   const router = useRouter()
-  const [step, setStep] = useState(1)
+  const searchParams = useSearchParams()
+  const preSelectedService = searchParams.get('service') || ''
+
   const [pandit, setPandit] = useState<any>(null)
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,16 +89,15 @@ export default function BookingPage() {
   const [error, setError] = useState('')
   const [bookingResult, setBookingResult] = useState<any>(null)
 
-  // Form state
+  // Determine starting step — skip service selection if pre-selected
+  const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
   const [selectedChoghadiya, setSelectedChoghadiya] = useState('')
   const [address, setAddress] = useState('')
   const [notes, setNotes] = useState('')
-  const [attendees, setAttendees] = useState('10')
-
-  // Choghadiya data
+  const [agreedPrice, setAgreedPrice] = useState(0)
   const [choghadiya, setChoghadiya] = useState<any[]>([])
 
   useEffect(() => {
@@ -112,7 +107,6 @@ export default function BookingPage() {
       router.push('/login')
       return
     }
-
     const fetchData = async () => {
       try {
         const [panditRes, servicesRes] = await Promise.all([
@@ -120,137 +114,159 @@ export default function BookingPage() {
           getServices()
         ])
         setPandit(panditRes.data.pandit)
-        setServices(servicesRes.data.services || [])
+        const allServices = servicesRes.data.services || []
+        setServices(allServices)
+
+        // Auto-select service if pre-selected from earlier flow
+        if (preSelectedService) {
+          const match = allServices.find((s: any) =>
+            s.name.toLowerCase().includes(preSelectedService.toLowerCase())
+          )
+          if (match) {
+            setSelectedService(match.id)
+            setStep(2) // Skip step 1
+          }
+        }
       } catch (err) {
         console.error('Failed to load data')
       }
       setLoading(false)
     }
     fetchData()
-  }, [panditId, router])
+  }, [panditId, router, preSelectedService])
 
   // Update Choghadiya when date changes
   useEffect(() => {
     if (selectedDate) {
       const date = new Date(selectedDate)
-      const periods = getChoghadiyaForDate(date)
-      setChoghadiya(periods)
+      setChoghadiya(getChoghadiyaForDate(date))
       setSelectedTime('')
       setSelectedChoghadiya('')
     }
   }, [selectedDate])
 
+  // Set default price when pandit loads
+  useEffect(() => {
+    if (pandit) {
+      setAgreedPrice(pandit.priceMin || 2000)
+    }
+  }, [pandit])
+
   const handleSubmit = async () => {
     setError('')
     setSubmitting(true)
     try {
-      const res = await createBooking({
+      await createBooking({
         panditId,
         serviceId: selectedService,
         bookingDate: selectedDate,
         startTime: selectedTime,
         address: address,
         city: 'Indore',
-        totalAmount: pandit.priceMin || 2000,
+        totalAmount: agreedPrice,
         specialRequests: notes || undefined,
         choghadiya: selectedChoghadiya || undefined,
       })
-      setBookingResult(res.data)
-      setStep(4)
+      setStep(5) // Confirmation step
     } catch (err: any) {
       setError(err.response?.data?.error || 'Booking failed. Please try again.')
     }
     setSubmitting(false)
   }
 
-  if (loading) return <div className="min-h-screen bg-orange-50 pt-24 text-center text-gray-400">Loading...</div>
-  if (!pandit) return <div className="min-h-screen bg-orange-50 pt-24 text-center text-gray-500">Pandit not found</div>
+  if (loading) return <div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading...</div>
+  if (!pandit) return <div className="min-h-screen pt-24 text-center" style={{ color: '#7A6350' }}>Pandit not found</div>
 
   const panditName = `Pt. ${pandit.user?.firstName} ${pandit.user?.lastName}`
   const selectedServiceData = services.find((s: any) => s.id === selectedService)
   const today = new Date().toISOString().split('T')[0]
-
-  // Filter only good Choghadiya periods for day time (ceremony hours)
   const dayPeriods = choghadiya.filter(c => c.isDay)
   const goodPeriods = dayPeriods.filter(c => c.type === 'best' || c.type === 'good')
 
-  return (
-    <div className="min-h-screen bg-orange-50 pt-20 pb-12 px-4">
-      <div className="max-w-2xl mx-auto">
+  const totalSteps = preSelectedService ? 4 : 5
+  const stepLabels = preSelectedService
+    ? ['Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
+    : ['Ceremony', 'Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
 
-        {/* Back button */}
-        <button onClick={() => router.back()} className="text-sm text-orange-600 font-semibold mb-6 hover:underline">
+  return (
+    <div className="min-h-screen pt-20 pb-12 px-4" style={{ background: '#FFFAF5' }}>
+      <div className="max-w-2xl mx-auto">
+        <button onClick={() => router.back()} className="text-sm font-semibold mb-6 hover:underline" style={{ color: '#D4651E' }}>
           ← Back
         </button>
 
-        {/* Progress Steps */}
-        <div className="flex justify-center gap-2 sm:gap-8 mb-8">
-          {['Ceremony', 'Date & Time', 'Details', 'Confirmed'].map((label, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                step > i + 1 ? 'bg-green-500 border-green-500 text-white' :
-                step === i + 1 ? 'bg-orange-600 border-orange-600 text-white' :
-                'border-gray-300 text-gray-400'
-              }`}>
-                {step > i + 1 ? '✓' : i + 1}
-              </div>
-              <span className={`text-xs hidden sm:block ${step === i + 1 ? 'text-orange-600 font-semibold' : 'text-gray-400'}`}>{label}</span>
-            </div>
-          ))}
-        </div>
+        {/* Progress */}
+        {step < 5 && (
+          <div className="flex justify-center gap-2 sm:gap-6 mb-8">
+            {stepLabels.slice(0, -1).map((label, i) => {
+              const stepNum = preSelectedService ? i + 2 : i + 1
+              const isComplete = step > stepNum
+              const isCurrent = step === stepNum
+              return (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                    style={{
+                      background: isComplete ? '#2D8F4E' : isCurrent ? '#D4651E' : 'rgba(180,130,80,0.1)',
+                      color: isComplete || isCurrent ? '#fff' : '#B09980',
+                    }}>
+                    {isComplete ? '✓' : (preSelectedService ? i + 1 : i + 1)}
+                  </div>
+                  <span className="text-xs hidden sm:block font-medium" style={{ color: isCurrent ? '#D4651E' : '#B09980' }}>{label}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-        {/* Pandit Info Banner */}
-        {step < 4 && (
-          <div className="bg-white rounded-xl p-4 mb-6 flex items-center gap-4 border border-orange-100">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold">
+        {/* Pandit banner */}
+        {step < 5 && (
+          <div className="p-4 rounded-2xl mb-6 flex items-center gap-4"
+            style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+              style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)' }}>
               {pandit.user?.firstName?.[0]}{pandit.user?.lastName?.[0]}
             </div>
             <div>
-              <h3 className="font-bold text-gray-900">{panditName}</h3>
-              <p className="text-sm text-gray-500">{pandit.city} · {pandit.experienceYears} yrs exp · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}</p>
+              <h3 className="font-bold" style={{ color: '#2C1810' }}>{panditName}</h3>
+              <p className="text-sm" style={{ color: '#7A6350' }}>
+                {pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}
+              </p>
+            </div>
+            <div className="ml-auto text-right">
+              <div className="font-bold" style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</div>
+              <div className="text-xs" style={{ color: '#B09980' }}>per ceremony</div>
             </div>
           </div>
         )}
 
-        {error && <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm mb-4">{error}</div>}
+        {error && <div className="p-3 rounded-xl text-sm mb-4" style={{ background: '#FEE8E8', color: '#C53030' }}>{error}</div>}
 
-        {/* ─── STEP 1: SELECT CEREMONY ─── */}
-        {step === 1 && (
-          <div className="bg-white rounded-xl p-6 border border-orange-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Select Ceremony</h2>
-            <p className="text-sm text-gray-500 mb-5">Choose the puja or ceremony you need</p>
-
+        {/* ─── STEP 1: CEREMONY (only if not pre-selected) ─── */}
+        {step === 1 && !preSelectedService && (
+          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Ceremony</h2>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Choose the puja or ceremony you need</p>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {services.map((s: any) => (
-                <label
-                  key={s.id}
-                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition ${
-                    selectedService === s.id ? 'border-orange-500 bg-orange-50' : 'border-gray-100 hover:border-orange-200'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="service"
-                    value={s.id}
-                    checked={selectedService === s.id}
-                    onChange={() => setSelectedService(s.id)}
-                    className="accent-orange-600"
-                  />
+                <label key={s.id}
+                  className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
+                  style={{
+                    border: `2px solid ${selectedService === s.id ? '#D4651E' : 'rgba(180,130,80,0.08)'}`,
+                    background: selectedService === s.id ? 'rgba(212,101,30,0.04)' : '#FFFFFF',
+                  }}>
+                  <input type="radio" name="service" value={s.id} checked={selectedService === s.id}
+                    onChange={() => setSelectedService(s.id)} style={{ accentColor: '#D4651E' }} />
                   <div className="flex-1">
-                    <div className="font-semibold text-gray-900">{s.name}</div>
-                    {s.nameHindi && <div className="text-xs text-gray-400">{s.nameHindi}</div>}
-                    {s.description && <div className="text-xs text-gray-500 mt-1">{s.description}</div>}
+                    <div className="font-semibold" style={{ color: '#2C1810' }}>{s.name}</div>
+                    {s.nameHindi && <div className="text-xs" style={{ color: '#B09980' }}>{s.nameHindi}</div>}
                   </div>
-                  <span className="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-full font-medium">{s.category}</span>
+                  <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: 'rgba(212,101,30,0.06)', color: '#D4651E' }}>{s.category}</span>
                 </label>
               ))}
             </div>
-
-            <button
-              onClick={() => selectedService && setStep(2)}
-              disabled={!selectedService}
-              className="w-full mt-6 bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-            >
+            <button onClick={() => selectedService && setStep(2)} disabled={!selectedService}
+              className="w-full mt-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
+              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>
               Continue →
             </button>
           </div>
@@ -258,189 +274,251 @@ export default function BookingPage() {
 
         {/* ─── STEP 2: DATE & CHOGHADIYA ─── */}
         {step === 2 && (
-          <div className="bg-white rounded-xl p-6 border border-orange-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Select Date & Muhurat</h2>
-            <p className="text-sm text-gray-500 mb-5">Pick a date and we'll show you the auspicious timings</p>
+          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Date & Muhurat</h2>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Pick a date and we'll show auspicious timings</p>
 
-            {/* Date picker */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Ceremony Date</label>
-              <input
-                type="date"
-                value={selectedDate}
-                min={today}
-                onChange={e => setSelectedDate(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base bg-orange-50 focus:outline-none focus:border-orange-400"
-              />
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#4A3728' }}>Ceremony Date</label>
+              <input type="date" value={selectedDate} min={today} onChange={e => setSelectedDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-base"
+                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
             </div>
 
-            {/* Choghadiya Display */}
             {selectedDate && (
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <h3 className="font-bold text-gray-900">🕉️ Din ka Choghadiya</h3>
-                  <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
-                    {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  <span className="text-lg">🕉️</span>
+                  <span className="font-bold" style={{ color: '#2C1810' }}>Din ka Choghadiya</span>
+                  <span className="ml-auto text-xs px-3 py-1 rounded-full font-semibold" style={{ background: 'rgba(212,101,30,0.08)', color: '#D4651E' }}>
+                    {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mb-3">Select an auspicious time for your ceremony. Green = Best, Yellow = Okay, Red = Avoid</p>
+                <p className="text-xs mb-3" style={{ color: '#B09980' }}>Green = Auspicious, Red = Avoid</p>
 
-                {/* Day periods */}
-                <div className="mb-3">
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">☀️ Day Timings (Sunrise to Sunset)</div>
-                  <div className="space-y-1.5">
-                    {dayPeriods.map((c, i) => (
-                      <label
-                        key={i}
-                        className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition ${
-                          selectedTime === c.startTime ? 'border-orange-500 bg-orange-50' :
-                          c.type === 'bad' ? 'border-red-100 bg-red-50/30 opacity-60' :
-                          'border-gray-100 hover:border-orange-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="time"
-                          value={c.startTime}
-                          checked={selectedTime === c.startTime}
-                          onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name); }}
-                          className="accent-orange-600"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm text-gray-900">{c.startTime} — {c.endTime}</span>
-                          </div>
-                          <div className="text-xs mt-0.5" style={{ color: c.color }}>{c.label}</div>
-                        </div>
-                        {(c.type === 'best' || c.type === 'good') && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">Recommended</span>
-                        )}
-                      </label>
-                    ))}
-                  </div>
+                <div className="space-y-1.5">
+                  {dayPeriods.map((c, i) => (
+                    <label key={i} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+                      style={{
+                        border: `2px solid ${selectedTime === c.startTime ? '#D4651E' : c.type === 'bad' ? 'rgba(197,48,48,0.08)' : 'rgba(180,130,80,0.06)'}`,
+                        background: selectedTime === c.startTime ? 'rgba(212,101,30,0.04)' : c.type === 'bad' ? 'rgba(197,48,48,0.02)' : '#fff',
+                        opacity: c.type === 'bad' ? 0.5 : 1,
+                      }}>
+                      <input type="radio" name="time" value={c.startTime} checked={selectedTime === c.startTime}
+                        onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name) }}
+                        style={{ accentColor: '#D4651E' }} />
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+                      <span className="font-semibold text-sm flex-1" style={{ color: '#2C1810' }}>{c.startTime} — {c.endTime}</span>
+                      <span className="text-xs" style={{ color: c.color }}>{c.name}</span>
+                      {(c.type === 'best' || c.type === 'good') && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>
+                          {c.type === 'best' ? 'BEST' : 'GOOD'}
+                        </span>
+                      )}
+                    </label>
+                  ))}
                 </div>
 
-                {/* Suggestion */}
                 {goodPeriods.length > 0 && !selectedTime && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
-                    💡 <strong>Suggestion:</strong> {goodPeriods[0].label} ({goodPeriods[0].startTime} — {goodPeriods[0].endTime}) is the most auspicious time for this day.
+                  <div className="mt-3 p-3 rounded-xl text-sm" style={{ background: '#E8F5EC', color: '#2D8F4E', border: '1px solid rgba(45,143,78,0.1)' }}>
+                    💡 <strong>Suggestion:</strong> {goodPeriods[0].name} ({goodPeriods[0].startTime}) is the most auspicious time.
                   </div>
                 )}
               </div>
             )}
 
             <div className="flex gap-3 mt-4">
-              <button onClick={() => setStep(1)} className="flex-1 border-2 border-gray-200 py-3 rounded-lg font-semibold text-gray-600 hover:border-orange-300 transition">
-                ← Back
-              </button>
-              <button
-                onClick={() => selectedDate && selectedTime && setStep(3)}
-                disabled={!selectedDate || !selectedTime}
-                className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Continue →
-              </button>
+              <button onClick={() => setStep(preSelectedService ? 2 : 1)}
+                className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => selectedDate && selectedTime && setStep(3)} disabled={!selectedDate || !selectedTime}
+                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 3: ADDRESS & CONFIRM ─── */}
+        {/* ─── STEP 3: ADDRESS ─── */}
         {step === 3 && (
-          <div className="bg-white rounded-xl p-6 border border-orange-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Ceremony Details</h2>
-            <p className="text-sm text-gray-500 mb-5">Where should the pandit come?</p>
-
-            {/* Summary */}
-            <div className="bg-orange-50 rounded-lg p-4 mb-6">
-              <h4 className="text-sm font-bold text-gray-700 mb-2">Booking Summary</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">Ceremony</span><span className="font-semibold">{selectedServiceData?.name}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Date</span><span className="font-semibold">{new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Time</span><span className="font-semibold">{selectedTime}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Muhurat</span><span className="font-semibold" style={{ color: CHOGHADIYA_INFO[selectedChoghadiya]?.color }}>{selectedChoghadiya}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Pandit</span><span className="font-semibold">{panditName}</span></div>
-              </div>
-            </div>
+          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Ceremony Location</h2>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Where should the pandit come?</p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Ceremony Address *</label>
-                <textarea
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  placeholder="Enter your full address (flat no, building, street, area, city, pincode)"
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Address *</label>
+                <AddressInput value={address} onChange={setAddress} />
+                <p className="text-xs mt-1" style={{ color: '#B09980' }}>Type your address — Google suggestions will appear if configured</p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Special Instructions (optional)</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                  placeholder="Any special requirements for the pandit..."
                   rows={3}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400 resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Expected Attendees</label>
-                <input
-                  type="number"
-                  value={attendees}
-                  onChange={e => setAttendees(e.target.value)}
-                  min="1"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Special Instructions (optional)</label>
-                <textarea
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  placeholder="Any special requirements or instructions for the pandit..."
-                  rows={2}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400 resize-none"
-                />
+                  className="w-full px-4 py-3 rounded-xl text-sm resize-none"
+                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(2)} className="flex-1 border-2 border-gray-200 py-3 rounded-lg font-semibold text-gray-600 hover:border-orange-300 transition">
-                ← Back
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!address || submitting}
-                className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {submitting ? 'Booking...' : 'Confirm Booking'}
+              <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => address && setStep(4)} disabled={!address}
+                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 4: PRICE CONFIRMATION & REVIEW ─── */}
+        {step === 4 && (
+          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Review & Confirm</h2>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Please review your booking details and confirm the price</p>
+
+            {/* Booking Summary */}
+            <div className="p-4 rounded-xl mb-6" style={{ background: '#FFF5EC' }}>
+              <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>Booking Summary</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Ceremony</span>
+                  <span className="font-semibold" style={{ color: '#2C1810' }}>{selectedServiceData?.name || preSelectedService}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Pandit</span>
+                  <span className="font-semibold" style={{ color: '#2C1810' }}>{panditName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Date</span>
+                  <span className="font-semibold" style={{ color: '#2C1810' }}>
+                    {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Time</span>
+                  <span className="font-semibold" style={{ color: '#2C1810' }}>{selectedTime}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Muhurat</span>
+                  <span className="font-semibold" style={{ color: CHOGHADIYA_INFO[selectedChoghadiya]?.color }}>{selectedChoghadiya}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: '#7A6350' }}>Location</span>
+                  <span className="font-semibold text-right max-w-[200px]" style={{ color: '#2C1810' }}>{address}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Price Negotiation */}
+            <div className="p-4 rounded-xl mb-6" style={{ background: '#FFFFFF', border: '2px solid rgba(212,101,30,0.15)' }}>
+              <h4 className="text-sm font-bold mb-2" style={{ color: '#4A3728' }}>💰 Confirm Price</h4>
+              <p className="text-xs mb-3" style={{ color: '#7A6350' }}>
+                Pandit&apos;s range: <strong style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</strong>
+              </p>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Your offer: ₹</span>
+                <input
+                  type="number"
+                  value={agreedPrice}
+                  onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
+                  min={pandit.priceMin || 0}
+                  max={pandit.priceMax || 100000}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-lg font-bold text-center"
+                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.15)', color: '#D4651E' }}
+                />
+              </div>
+
+              {/* Quick price buttons */}
+              <div className="flex gap-2 mt-3">
+                {[pandit.priceMin, Math.round((pandit.priceMin + pandit.priceMax) / 2), pandit.priceMax].filter(Boolean).map((p, i) => (
+                  <button key={i} onClick={() => setAgreedPrice(p)}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+                    style={{
+                      background: agreedPrice === p ? 'rgba(212,101,30,0.08)' : 'rgba(180,130,80,0.04)',
+                      color: agreedPrice === p ? '#D4651E' : '#7A6350',
+                      border: `1px solid ${agreedPrice === p ? 'rgba(212,101,30,0.2)' : 'rgba(180,130,80,0.08)'}`,
+                    }}>
+                    ₹{p?.toLocaleString()}
+                    {i === 0 ? ' (Min)' : i === 2 ? ' (Max)' : ''}
+                  </button>
+                ))}
+              </div>
+
+              {agreedPrice < (pandit.priceMin || 0) && (
+                <p className="text-xs mt-2" style={{ color: '#C53030' }}>
+                  ⚠️ Price is below pandit&apos;s minimum (₹{pandit.priceMin?.toLocaleString()})
+                </p>
+              )}
+            </div>
+
+            {/* Total */}
+            <div className="flex justify-between items-center p-4 rounded-xl mb-6" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
+              <span className="font-bold" style={{ color: '#2C1810' }}>Total Amount</span>
+              <span className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>₹{agreedPrice.toLocaleString()}</span>
+            </div>
+
+            <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>
+              By confirming, the pandit will be notified. Payment will be collected later.
+            </p>
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={handleSubmit} disabled={!agreedPrice || submitting}
+                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
+                {submitting ? 'Booking...' : '✓ Confirm Booking'}
               </button>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 4: CONFIRMATION ─── */}
-        {step === 4 && (
-          <div className="bg-white rounded-xl p-8 border border-orange-100 text-center">
+        {/* ─── STEP 5: CONFIRMATION ─── */}
+        {step === 5 && (
+          <div className="p-8 rounded-2xl text-center" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <div className="text-5xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h2>
-            <p className="text-gray-500 mb-6">Your ceremony has been booked successfully. The pandit will be notified.</p>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: '#2C1810' }}>Booking Confirmed!</h2>
+            <p className="text-sm mb-6" style={{ color: '#7A6350' }}>Your ceremony has been booked. The pandit will be notified.</p>
 
-            <div className="bg-orange-50 rounded-lg p-4 mb-6 text-left">
+            <div className="p-4 rounded-xl mb-6 text-left" style={{ background: '#FFF5EC' }}>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">Ceremony</span><span className="font-semibold">{selectedServiceData?.name}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Pandit</span><span className="font-semibold">{panditName}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Date</span><span className="font-semibold">{new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Time</span><span className="font-semibold">{selectedTime}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Muhurat</span><span className="font-semibold text-green-600">{selectedChoghadiya}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Address</span><span className="font-semibold text-right max-w-xs">{address}</span></div>
+                {[
+                  ['Ceremony', selectedServiceData?.name || preSelectedService],
+                  ['Pandit', panditName],
+                  ['Date', new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })],
+                  ['Time', selectedTime],
+                  ['Muhurat', selectedChoghadiya],
+                  ['Address', address],
+                  ['Amount', `₹${agreedPrice.toLocaleString()}`],
+                ].map(([label, value], i) => (
+                  <div key={i} className="flex justify-between">
+                    <span style={{ color: '#7A6350' }}>{label}</span>
+                    <span className="font-semibold" style={{ color: i === 6 ? '#D4651E' : '#2C1810' }}>{value}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => router.push('/dashboard')} className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition">
-                View My Bookings
-              </button>
-              <button onClick={() => router.push('/')} className="flex-1 border-2 border-gray-200 py-3 rounded-lg font-semibold text-gray-600 hover:border-orange-300 transition">
-                Back to Home
-              </button>
+              <button onClick={() => router.push('/dashboard')}
+                className="flex-1 py-3 rounded-xl font-bold text-white transition-all"
+                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>View My Bookings</button>
+              <button onClick={() => router.push('/')}
+                className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>Back to Home</button>
             </div>
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading...</div>}>
+      <BookingContent />
+    </Suspense>
   )
 }

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login } from '../../lib/api'
+import { login } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,62 +14,62 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const res = await login(form)
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      router.push('/dashboard')
+
+      // Force page refresh so navbar picks up the new user
+      window.location.href = res.data.user.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong')
-    } finally {
-      setLoading(false)
+      setError(err.response?.data?.error || 'Login failed. Please check your credentials.')
     }
+    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Welcome Back</h1>
-        <p className="text-center text-gray-500 mb-6">Login to Find My Pandit</p>
+    <div className="min-h-screen flex items-center justify-center px-4 pt-16" style={{ background: '#FFFAF5' }}>
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl"
+            style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
+            🙏
+          </div>
+          <h1 className="text-2xl font-extrabold mb-1" style={{ color: '#2C1810' }}>Welcome back</h1>
+          <p className="text-sm" style={{ color: '#7A6350' }}>Login to your Find My Pandit account</p>
+        </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{error}</div>
-        )}
+        {/* Form */}
+        <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)', boxShadow: '0 4px 24px rgba(120,80,30,0.04)' }}>
+          {error && <div className="p-3 rounded-xl text-sm mb-4" style={{ background: '#FEE8E8', color: '#C53030' }}>{error}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Email</label>
+              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                placeholder="your@email.com" required
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Password</label>
+              <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+                placeholder="••••••••" required
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+            </div>
+            <button type="submit" disabled={loading}
+              className="w-full py-3 rounded-xl font-bold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+        </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition disabled:opacity-50"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="text-center mt-6 text-gray-500">
+        <p className="text-center text-sm mt-6" style={{ color: '#7A6350' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-orange-600 font-medium hover:underline">
-            Register
-          </Link>
+          <Link href="/register" className="font-semibold" style={{ color: '#D4651E' }}>Register here</Link>
         </p>
       </div>
     </div>
