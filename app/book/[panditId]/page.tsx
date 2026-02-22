@@ -1,20 +1,20 @@
 'use client'
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getPandit, getServices, createBooking } from '@/lib/api'
+import AddressInput from '@/components/AddressInput'
 
 // ─── CHOGHADIYA CALCULATOR ─────────────────────────
 const CHOGHADIYA_DAY = ['Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog']
-const CHOGHADIYA_NIGHT = ['Shubh', 'Amrit', 'Chal', 'Rog', 'Kaal', 'Labh', 'Udveg']
 
 const CHOGHADIYA_INFO: Record<string, { type: string; color: string; label: string }> = {
-  Amrit: { type: 'best', color: '#16a34a', label: '🟢 Best — Amrit (Most Auspicious)' },
-  Shubh: { type: 'good', color: '#22c55e', label: '🟢 Good — Shubh (Auspicious)' },
-  Labh: { type: 'good', color: '#65a30d', label: '🟡 Good — Labh (Profitable)' },
-  Chal: { type: 'neutral', color: '#ca8a04', label: '🟡 Okay — Chal (Moving)' },
-  Rog: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Rog (Illness)' },
-  Kaal: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Kaal (Death)' },
-  Udveg: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Udveg (Anxiety)' },
+  Amrit: { type: 'best', color: '#16a34a', label: '🟢 Best — Amrit' },
+  Shubh: { type: 'good', color: '#22c55e', label: '🟢 Good — Shubh' },
+  Labh: { type: 'good', color: '#65a30d', label: '🟡 Good — Labh' },
+  Chal: { type: 'neutral', color: '#ca8a04', label: '🟡 Okay — Chal' },
+  Rog: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Rog' },
+  Kaal: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Kaal' },
+  Udveg: { type: 'bad', color: '#dc2626', label: '🔴 Avoid — Udveg' },
 }
 
 function getChoghadiyaForDate(date: Date) {
@@ -22,7 +22,6 @@ function getChoghadiyaForDate(date: Date) {
   const dayStartIndex = [4, 1, 5, 2, 6, 3, 0][day]
   const sunrise = 6, sunset = 18
   const dayDuration = (sunset - sunrise) / 8
-
   const periods = []
   for (let i = 0; i < 8; i++) {
     const startHour = sunrise + i * dayDuration
@@ -41,40 +40,6 @@ function fmtHr(h: number): string {
   return `${d}:${mins.toString().padStart(2, '0')} ${p}`
 }
 
-// ─── GOOGLE PLACES AUTOCOMPLETE ─────────────────
-function AddressInput({ value, onChange }: { value: string; onChange: (val: string) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const autocompleteRef = useRef<any>(null)
-
-  useEffect(() => {
-    // Check if Google Maps script is loaded
-    if (typeof window !== 'undefined' && (window as any).google?.maps?.places && inputRef.current && !autocompleteRef.current) {
-      autocompleteRef.current = new (window as any).google.maps.places.Autocomplete(inputRef.current, {
-        componentRestrictions: { country: 'in' },
-        types: ['address'],
-      })
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current.getPlace()
-        if (place?.formatted_address) {
-          onChange(place.formatted_address)
-        }
-      })
-    }
-  }, [onChange])
-
-  return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder="Start typing your address..."
-      className="w-full px-4 py-3 rounded-xl text-sm"
-      style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }}
-    />
-  )
-}
-
 // ─── BOOKING PAGE ──────────────────────────────────
 function BookingContent() {
   const { panditId } = useParams()
@@ -87,15 +52,16 @@ function BookingContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [bookingResult, setBookingResult] = useState<any>(null)
 
-  // Determine starting step — skip service selection if pre-selected
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
   const [selectedChoghadiya, setSelectedChoghadiya] = useState('')
   const [address, setAddress] = useState('')
+  const [addressCity, setAddressCity] = useState('')
+  const [addressState, setAddressState] = useState('')
+  const [addressPincode, setAddressPincode] = useState('')
   const [notes, setNotes] = useState('')
   const [agreedPrice, setAgreedPrice] = useState(0)
   const [choghadiya, setChoghadiya] = useState<any[]>([])
@@ -116,45 +82,36 @@ function BookingContent() {
         setPandit(panditRes.data.pandit)
         const allServices = servicesRes.data.services || []
         setServices(allServices)
-
-        // Auto-select service if pre-selected from earlier flow
         if (preSelectedService) {
           const match = allServices.find((s: any) =>
             s.name.toLowerCase().includes(preSelectedService.toLowerCase())
           )
-          if (match) {
-            setSelectedService(match.id)
-            setStep(2) // Skip step 1
-          }
+          if (match) { setSelectedService(match.id); setStep(2) }
         }
-      } catch (err) {
-        console.error('Failed to load data')
-      }
+      } catch (err) { console.error('Failed to load data') }
       setLoading(false)
     }
     fetchData()
   }, [panditId, router, preSelectedService])
 
-  // Update Choghadiya when date changes
   useEffect(() => {
     if (selectedDate) {
-      const date = new Date(selectedDate)
-      setChoghadiya(getChoghadiyaForDate(date))
-      setSelectedTime('')
-      setSelectedChoghadiya('')
+      setChoghadiya(getChoghadiyaForDate(new Date(selectedDate)))
+      setSelectedTime(''); setSelectedChoghadiya('')
     }
   }, [selectedDate])
 
-  // Set default price when pandit loads
-  useEffect(() => {
-    if (pandit) {
-      setAgreedPrice(pandit.priceMin || 2000)
-    }
-  }, [pandit])
+  useEffect(() => { if (pandit) setAgreedPrice(pandit.priceMin || 2000) }, [pandit])
+
+  const handleAddressSelect = (details: any) => {
+    setAddress(details.fullAddress)
+    setAddressCity(details.city)
+    setAddressState(details.state)
+    setAddressPincode(details.pincode)
+  }
 
   const handleSubmit = async () => {
-    setError('')
-    setSubmitting(true)
+    setError(''); setSubmitting(true)
     try {
       await createBooking({
         panditId,
@@ -162,12 +119,12 @@ function BookingContent() {
         bookingDate: selectedDate,
         startTime: selectedTime,
         address: address,
-        city: 'Indore',
+        city: addressCity || 'Indore',
         totalAmount: agreedPrice,
         specialRequests: notes || undefined,
         choghadiya: selectedChoghadiya || undefined,
       })
-      setStep(5) // Confirmation step
+      setStep(5)
     } catch (err: any) {
       setError(err.response?.data?.error || 'Booking failed. Please try again.')
     }
@@ -183,7 +140,6 @@ function BookingContent() {
   const dayPeriods = choghadiya.filter(c => c.isDay)
   const goodPeriods = dayPeriods.filter(c => c.type === 'best' || c.type === 'good')
 
-  const totalSteps = preSelectedService ? 4 : 5
   const stepLabels = preSelectedService
     ? ['Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
     : ['Ceremony', 'Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
@@ -191,9 +147,7 @@ function BookingContent() {
   return (
     <div className="min-h-screen pt-20 pb-12 px-4" style={{ background: '#FFFAF5' }}>
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => router.back()} className="text-sm font-semibold mb-6 hover:underline" style={{ color: '#D4651E' }}>
-          ← Back
-        </button>
+        <button onClick={() => router.back()} className="text-sm font-semibold mb-6 hover:underline" style={{ color: '#D4651E' }}>← Back</button>
 
         {/* Progress */}
         {step < 5 && (
@@ -205,11 +159,8 @@ function BookingContent() {
               return (
                 <div key={i} className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-                    style={{
-                      background: isComplete ? '#2D8F4E' : isCurrent ? '#D4651E' : 'rgba(180,130,80,0.1)',
-                      color: isComplete || isCurrent ? '#fff' : '#B09980',
-                    }}>
-                    {isComplete ? '✓' : (preSelectedService ? i + 1 : i + 1)}
+                    style={{ background: isComplete ? '#2D8F4E' : isCurrent ? '#D4651E' : 'rgba(180,130,80,0.1)', color: isComplete || isCurrent ? '#fff' : '#B09980' }}>
+                    {isComplete ? '✓' : i + 1}
                   </div>
                   <span className="text-xs hidden sm:block font-medium" style={{ color: isCurrent ? '#D4651E' : '#B09980' }}>{label}</span>
                 </div>
@@ -220,17 +171,13 @@ function BookingContent() {
 
         {/* Pandit banner */}
         {step < 5 && (
-          <div className="p-4 rounded-2xl mb-6 flex items-center gap-4"
-            style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
-              style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)' }}>
+          <div className="p-4 rounded-2xl mb-6 flex items-center gap-4" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)' }}>
               {pandit.user?.firstName?.[0]}{pandit.user?.lastName?.[0]}
             </div>
             <div>
               <h3 className="font-bold" style={{ color: '#2C1810' }}>{panditName}</h3>
-              <p className="text-sm" style={{ color: '#7A6350' }}>
-                {pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}
-              </p>
+              <p className="text-sm" style={{ color: '#7A6350' }}>{pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}</p>
             </div>
             <div className="ml-auto text-right">
               <div className="font-bold" style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</div>
@@ -241,19 +188,15 @@ function BookingContent() {
 
         {error && <div className="p-3 rounded-xl text-sm mb-4" style={{ background: '#FEE8E8', color: '#C53030' }}>{error}</div>}
 
-        {/* ─── STEP 1: CEREMONY (only if not pre-selected) ─── */}
+        {/* ─── STEP 1: CEREMONY ─── */}
         {step === 1 && !preSelectedService && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Ceremony</h2>
             <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Choose the puja or ceremony you need</p>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {services.map((s: any) => (
-                <label key={s.id}
-                  className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
-                  style={{
-                    border: `2px solid ${selectedService === s.id ? '#D4651E' : 'rgba(180,130,80,0.08)'}`,
-                    background: selectedService === s.id ? 'rgba(212,101,30,0.04)' : '#FFFFFF',
-                  }}>
+                <label key={s.id} className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
+                  style={{ border: `2px solid ${selectedService === s.id ? '#D4651E' : 'rgba(180,130,80,0.08)'}`, background: selectedService === s.id ? 'rgba(212,101,30,0.04)' : '#FFFFFF' }}>
                   <input type="radio" name="service" value={s.id} checked={selectedService === s.id}
                     onChange={() => setSelectedService(s.id)} style={{ accentColor: '#D4651E' }} />
                   <div className="flex-1">
@@ -266,9 +209,7 @@ function BookingContent() {
             </div>
             <button onClick={() => selectedService && setStep(2)} disabled={!selectedService}
               className="w-full mt-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>
-              Continue →
-            </button>
+              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
           </div>
         )}
 
@@ -276,15 +217,12 @@ function BookingContent() {
         {step === 2 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Date & Muhurat</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Pick a date and we'll show auspicious timings</p>
-
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Pick a date and we&apos;ll show auspicious timings</p>
             <div className="mb-6">
               <label className="block text-sm font-semibold mb-2" style={{ color: '#4A3728' }}>Ceremony Date</label>
               <input type="date" value={selectedDate} min={today} onChange={e => setSelectedDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-base"
-                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+                className="w-full px-4 py-3 rounded-xl text-base" style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
             </div>
-
             {selectedDate && (
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
@@ -294,8 +232,6 @@ function BookingContent() {
                     {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </span>
                 </div>
-                <p className="text-xs mb-3" style={{ color: '#B09980' }}>Green = Auspicious, Red = Avoid</p>
-
                 <div className="space-y-1.5">
                   {dayPeriods.map((c, i) => (
                     <label key={i} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
@@ -305,8 +241,7 @@ function BookingContent() {
                         opacity: c.type === 'bad' ? 0.5 : 1,
                       }}>
                       <input type="radio" name="time" value={c.startTime} checked={selectedTime === c.startTime}
-                        onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name) }}
-                        style={{ accentColor: '#D4651E' }} />
+                        onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name) }} style={{ accentColor: '#D4651E' }} />
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
                       <span className="font-semibold text-sm flex-1" style={{ color: '#2C1810' }}>{c.startTime} — {c.endTime}</span>
                       <span className="text-xs" style={{ color: c.color }}>{c.name}</span>
@@ -318,7 +253,6 @@ function BookingContent() {
                     </label>
                   ))}
                 </div>
-
                 {goodPeriods.length > 0 && !selectedTime && (
                   <div className="mt-3 p-3 rounded-xl text-sm" style={{ background: '#E8F5EC', color: '#2D8F4E', border: '1px solid rgba(45,143,78,0.1)' }}>
                     💡 <strong>Suggestion:</strong> {goodPeriods[0].name} ({goodPeriods[0].startTime}) is the most auspicious time.
@@ -326,110 +260,99 @@ function BookingContent() {
                 )}
               </div>
             )}
-
             <div className="flex gap-3 mt-4">
-              <button onClick={() => setStep(preSelectedService ? 2 : 1)}
-                className="flex-1 py-3 rounded-xl font-semibold transition-all"
-                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(preSelectedService ? 2 : 1)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
               <button onClick={() => selectedDate && selectedTime && setStep(3)} disabled={!selectedDate || !selectedTime}
-                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 3: ADDRESS ─── */}
+        {/* ─── STEP 3: ADDRESS (Google Places) ─── */}
         {step === 3 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Ceremony Location</h2>
             <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Where should the pandit come?</p>
-
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Address *</label>
-                <AddressInput value={address} onChange={setAddress} />
-                <p className="text-xs mt-1" style={{ color: '#B09980' }}>Type your address — Google suggestions will appear if configured</p>
+                <AddressInput
+                  value={address}
+                  onChange={setAddress}
+                  onAddressSelect={handleAddressSelect}
+                  placeholder="Start typing your address..."
+                />
+                <p className="text-xs mt-1.5" style={{ color: '#B09980' }}>
+                  📍 Google will suggest addresses as you type
+                </p>
               </div>
+
+              {/* Auto-filled fields from Google Places */}
+              {(addressCity || addressState || addressPincode) && (
+                <div className="p-3 rounded-xl" style={{ background: '#E8F5EC', border: '1px solid rgba(45,143,78,0.1)' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#2D8F4E' }}>✓ Auto-filled from Google</p>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    {addressCity && <div><span style={{ color: '#7A6350' }}>City:</span> <strong style={{ color: '#2C1810' }}>{addressCity}</strong></div>}
+                    {addressState && <div><span style={{ color: '#7A6350' }}>State:</span> <strong style={{ color: '#2C1810' }}>{addressState}</strong></div>}
+                    {addressPincode && <div><span style={{ color: '#7A6350' }}>Pin:</span> <strong style={{ color: '#2C1810' }}>{addressPincode}</strong></div>}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Special Instructions (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                  placeholder="Any special requirements for the pandit..."
-                  rows={3}
+                  placeholder="Any special requirements for the pandit..." rows={3}
                   className="w-full px-4 py-3 rounded-xl text-sm resize-none"
                   style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-semibold transition-all"
-                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
               <button onClick={() => address && setStep(4)} disabled={!address}
-                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 4: PRICE CONFIRMATION & REVIEW ─── */}
+        {/* ─── STEP 4: PRICE CONFIRMATION ─── */}
         {step === 4 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Review & Confirm</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Please review your booking details and confirm the price</p>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Review your booking and confirm the price</p>
 
-            {/* Booking Summary */}
             <div className="p-4 rounded-xl mb-6" style={{ background: '#FFF5EC' }}>
               <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>Booking Summary</h4>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Ceremony</span>
-                  <span className="font-semibold" style={{ color: '#2C1810' }}>{selectedServiceData?.name || preSelectedService}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Pandit</span>
-                  <span className="font-semibold" style={{ color: '#2C1810' }}>{panditName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Date</span>
-                  <span className="font-semibold" style={{ color: '#2C1810' }}>
-                    {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Time</span>
-                  <span className="font-semibold" style={{ color: '#2C1810' }}>{selectedTime}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Muhurat</span>
-                  <span className="font-semibold" style={{ color: CHOGHADIYA_INFO[selectedChoghadiya]?.color }}>{selectedChoghadiya}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Location</span>
-                  <span className="font-semibold text-right max-w-[200px]" style={{ color: '#2C1810' }}>{address}</span>
-                </div>
+                {[
+                  ['Ceremony', selectedServiceData?.name || preSelectedService],
+                  ['Pandit', panditName],
+                  ['Date', new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })],
+                  ['Time', selectedTime],
+                  ['Muhurat', selectedChoghadiya],
+                  ['Location', address],
+                  ...(addressCity ? [['City', addressCity]] : []),
+                ].map(([label, value], i) => (
+                  <div key={i} className="flex justify-between">
+                    <span style={{ color: '#7A6350' }}>{label}</span>
+                    <span className="font-semibold text-right max-w-[200px]" style={{ color: label === 'Muhurat' ? CHOGHADIYA_INFO[selectedChoghadiya]?.color : '#2C1810' }}>{value}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Price Negotiation */}
             <div className="p-4 rounded-xl mb-6" style={{ background: '#FFFFFF', border: '2px solid rgba(212,101,30,0.15)' }}>
               <h4 className="text-sm font-bold mb-2" style={{ color: '#4A3728' }}>💰 Confirm Price</h4>
               <p className="text-xs mb-3" style={{ color: '#7A6350' }}>
                 Pandit&apos;s range: <strong style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</strong>
               </p>
-
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Your offer: ₹</span>
-                <input
-                  type="number"
-                  value={agreedPrice}
-                  onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
-                  min={pandit.priceMin || 0}
-                  max={pandit.priceMax || 100000}
+                <input type="number" value={agreedPrice} onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
+                  min={pandit.priceMin || 0} max={pandit.priceMax || 100000}
                   className="flex-1 px-4 py-2.5 rounded-xl text-lg font-bold text-center"
-                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.15)', color: '#D4651E' }}
-                />
+                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.15)', color: '#D4651E' }} />
               </div>
-
-              {/* Quick price buttons */}
               <div className="flex gap-2 mt-3">
                 {[pandit.priceMin, Math.round((pandit.priceMin + pandit.priceMax) / 2), pandit.priceMax].filter(Boolean).map((p, i) => (
                   <button key={i} onClick={() => setAgreedPrice(p)}
@@ -438,38 +361,24 @@ function BookingContent() {
                       background: agreedPrice === p ? 'rgba(212,101,30,0.08)' : 'rgba(180,130,80,0.04)',
                       color: agreedPrice === p ? '#D4651E' : '#7A6350',
                       border: `1px solid ${agreedPrice === p ? 'rgba(212,101,30,0.2)' : 'rgba(180,130,80,0.08)'}`,
-                    }}>
-                    ₹{p?.toLocaleString()}
-                    {i === 0 ? ' (Min)' : i === 2 ? ' (Max)' : ''}
-                  </button>
+                    }}>₹{p?.toLocaleString()}{i === 0 ? ' (Min)' : i === 2 ? ' (Max)' : ''}</button>
                 ))}
               </div>
-
-              {agreedPrice < (pandit.priceMin || 0) && (
-                <p className="text-xs mt-2" style={{ color: '#C53030' }}>
-                  ⚠️ Price is below pandit&apos;s minimum (₹{pandit.priceMin?.toLocaleString()})
-                </p>
-              )}
             </div>
 
-            {/* Total */}
             <div className="flex justify-between items-center p-4 rounded-xl mb-6" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
               <span className="font-bold" style={{ color: '#2C1810' }}>Total Amount</span>
               <span className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>₹{agreedPrice.toLocaleString()}</span>
             </div>
 
-            <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>
-              By confirming, the pandit will be notified. Payment will be collected later.
-            </p>
+            <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>By confirming, the pandit will be notified. Payment will be collected later.</p>
 
             <div className="flex gap-3">
-              <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold transition-all"
-                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
               <button onClick={handleSubmit} disabled={!agreedPrice || submitting}
-                className="flex-1 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
+                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
-                {submitting ? 'Booking...' : '✓ Confirm Booking'}
-              </button>
+                {submitting ? 'Booking...' : '✓ Confirm Booking'}</button>
             </div>
           </div>
         )}
@@ -480,17 +389,14 @@ function BookingContent() {
             <div className="text-5xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: '#2C1810' }}>Booking Confirmed!</h2>
             <p className="text-sm mb-6" style={{ color: '#7A6350' }}>Your ceremony has been booked. The pandit will be notified.</p>
-
             <div className="p-4 rounded-xl mb-6 text-left" style={{ background: '#FFF5EC' }}>
               <div className="space-y-2 text-sm">
                 {[
                   ['Ceremony', selectedServiceData?.name || preSelectedService],
                   ['Pandit', panditName],
                   ['Date', new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })],
-                  ['Time', selectedTime],
-                  ['Muhurat', selectedChoghadiya],
-                  ['Address', address],
-                  ['Amount', `₹${agreedPrice.toLocaleString()}`],
+                  ['Time', selectedTime], ['Muhurat', selectedChoghadiya],
+                  ['Address', address], ['Amount', `₹${agreedPrice.toLocaleString()}`],
                 ].map(([label, value], i) => (
                   <div key={i} className="flex justify-between">
                     <span style={{ color: '#7A6350' }}>{label}</span>
@@ -499,14 +405,9 @@ function BookingContent() {
                 ))}
               </div>
             </div>
-
             <div className="flex gap-3">
-              <button onClick={() => router.push('/dashboard')}
-                className="flex-1 py-3 rounded-xl font-bold text-white transition-all"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>View My Bookings</button>
-              <button onClick={() => router.push('/')}
-                className="flex-1 py-3 rounded-xl font-semibold transition-all"
-                style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>Back to Home</button>
+              <button onClick={() => router.push('/dashboard')} className="flex-1 py-3 rounded-xl font-bold text-white" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>View My Bookings</button>
+              <button onClick={() => router.push('/')} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>Back to Home</button>
             </div>
           </div>
         )}

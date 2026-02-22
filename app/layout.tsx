@@ -1,26 +1,28 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import Navbar from '../components/layout/Navbar'
-
-const inter = Inter({ subsets: ['latin'] })
+import Navbar from '@/components/layout/Navbar'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: 'Find My Pandit - Book Verified Pandits for Ceremonies',
-  description: 'Connect with verified Hindu priests for weddings, pujas, and religious ceremonies.',
+  title: 'Aarambh — जहाँ श्रद्धा मिले सेवा से',
+  description: 'Book verified pandits for weddings, pujas & all Hindu ceremonies. Transparent pricing. Auspicious timing.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        {/* Google Maps Places API — replace YOUR_GOOGLE_MAPS_API_KEY */}
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'}&libraries=places`}
+          strategy="lazyOnload"
+        />
+        {/* Google Identity Services for Google Login */}
+        <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
+      </head>
+      <body>
         <Navbar />
-        <main className="min-h-screen bg-gray-50">
-          {children}
-        </main>
-        <footer className="bg-gray-800 text-gray-300 text-center py-6">
-          <p>© 2026 Find My Pandit. All rights reserved. 🙏</p>
-        </footer>
+        <main>{children}</main>
       </body>
     </html>
   )

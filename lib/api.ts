@@ -20,6 +20,7 @@ api.interceptors.request.use((config) => {
 // Auth
 export const register = (data: any) => api.post('/auth/register', data)
 export const login = (data: any) => api.post('/auth/login', data)
+export const googleLogin = (data: { credential: string }) => api.post('/auth/google', data)
 
 // Services
 export const getServices = () => api.get('/services')
