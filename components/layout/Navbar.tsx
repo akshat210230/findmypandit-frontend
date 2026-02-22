@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import AarambhLogo from '../AarambhLogo'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
@@ -28,7 +29,7 @@ export default function Navbar() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setUser(null)
-    router.push('/')
+    window.location.href = '/'
   }
 
   const navLinks = [
@@ -51,18 +52,8 @@ export default function Navbar() {
         }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)', boxShadow: '0 2px 8px rgba(212,101,30,0.2)' }}>
-                🙏
-              </div>
-              <span className="text-lg font-bold tracking-tight" style={{ color: '#2C1810' }}>
-                Find My Pandit
-              </span>
-            </Link>
+            <Link href="/"><AarambhLogo size={36} showText={true} /></Link>
 
-            {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href}
@@ -76,28 +67,16 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Desktop Auth */}
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <>
-                  <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>
-                    Hi, {user.firstName}
-                  </span>
-                  <button onClick={handleLogout}
-                    className="text-sm font-medium px-4 py-2 rounded-lg transition-all"
-                    style={{ color: '#B09980', background: 'transparent' }}>
-                    Logout
-                  </button>
+                  <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Hi, {user.firstName}</span>
+                  <button onClick={handleLogout} className="text-sm font-medium px-4 py-2 rounded-lg transition-all" style={{ color: '#B09980' }}>Logout</button>
                 </>
               ) : (
                 <>
-                  <Link href="/login"
-                    className="text-sm font-medium px-4 py-2 rounded-lg transition-all"
-                    style={{ color: '#7A6350' }}>
-                    Login
-                  </Link>
-                  <Link href="/register"
-                    className="text-sm font-semibold px-5 py-2 rounded-xl text-white transition-all hover:-translate-y-0.5"
+                  <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ color: '#7A6350' }}>Login</Link>
+                  <Link href="/register" className="text-sm font-semibold px-5 py-2 rounded-xl text-white transition-all hover:-translate-y-0.5"
                     style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 3px 12px rgba(212,101,30,0.15)' }}>
                     Get Started
                   </Link>
@@ -105,25 +84,20 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile menu button */}
             <button onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg transition"
-              style={{ color: '#2C1810' }}>
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg" style={{ color: '#2C1810' }}>
               {mobileOpen ? '✕' : '☰'}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'rgba(44,24,16,0.3)' }} onClick={() => setMobileOpen(false)} />
           <div className="absolute top-0 right-0 w-72 h-full shadow-2xl animate-slide-in" style={{ background: '#FFFAF5' }}>
             <div className="p-5">
-              <button onClick={() => setMobileOpen(false)} className="float-right w-10 h-10 flex items-center justify-center rounded-lg text-xl" style={{ color: '#B09980' }}>
-                ✕
-              </button>
+              <button onClick={() => setMobileOpen(false)} className="float-right w-10 h-10 flex items-center justify-center rounded-lg text-xl" style={{ color: '#B09980' }}>✕</button>
               <div className="clear-both pt-4">
                 {user && (
                   <div className="mb-6 pb-4" style={{ borderBottom: '1px solid rgba(180,130,80,0.1)' }}>
@@ -137,11 +111,8 @@ export default function Navbar() {
                 <div className="space-y-1">
                   {navLinks.map(link => (
                     <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                      className="block px-4 py-3 rounded-lg text-sm font-medium transition"
-                      style={{
-                        color: isActive(link.href) ? '#D4651E' : '#4A3728',
-                        background: isActive(link.href) ? 'rgba(212,101,30,0.06)' : 'transparent',
-                      }}>
+                      className="block px-4 py-3 rounded-lg text-sm font-medium"
+                      style={{ color: isActive(link.href) ? '#D4651E' : '#4A3728', background: isActive(link.href) ? 'rgba(212,101,30,0.06)' : 'transparent' }}>
                       {link.label}
                     </Link>
                   ))}
@@ -149,10 +120,7 @@ export default function Navbar() {
                 <div className="mt-6 pt-4 space-y-2" style={{ borderTop: '1px solid rgba(180,130,80,0.1)' }}>
                   {user ? (
                     <button onClick={() => { handleLogout(); setMobileOpen(false) }}
-                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition"
-                      style={{ color: '#C53030' }}>
-                      Logout
-                    </button>
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium" style={{ color: '#C53030' }}>Logout</button>
                   ) : (
                     <>
                       <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-sm font-medium" style={{ color: '#4A3728' }}>Login</Link>
