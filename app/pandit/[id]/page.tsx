@@ -4,8 +4,14 @@ import { useParams, useRouter } from 'next/navigation'
 import { getPandit, createBooking, getServices } from '../../../lib/api'
 
 export default function PanditProfilePage() {
-  const { id } = useParams()
-  const router = useRouter()
+const { id } = useParams()
+const router = useRouter()
+const [preSelectedService, setPreSelectedService] = useState('')
+
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search)
+  setPreSelectedService(params.get('service') || '')
+}, [])
   const [pandit, setPandit] = useState<any>(null)
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -105,7 +111,7 @@ export default function PanditProfilePage() {
       router.push('/login')
       return
     }
-    router.push(`/book/${id}`)
+    router.push(`/book/${id}${preSelectedService ? `?service=${encodeURIComponent(preSelectedService)}` : ''}`)
   }}
 >
   Book Now
