@@ -51,6 +51,7 @@ function BookingContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [negotiating, setNegotiating] = useState(false)
 
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState('')
@@ -149,7 +150,6 @@ function BookingContent() {
       <div className="max-w-2xl mx-auto">
         <button onClick={() => router.back()} className="text-sm font-semibold mb-6 hover:underline" style={{ color: '#D4651E' }}>← Back</button>
 
-        {/* Progress */}
         {step < 5 && (
           <div className="flex justify-center gap-2 sm:gap-6 mb-8">
             {stepLabels.slice(0, -1).map((label, i) => {
@@ -169,7 +169,6 @@ function BookingContent() {
           </div>
         )}
 
-        {/* Pandit banner */}
         {step < 5 && (
           <div className="p-4 rounded-2xl mb-6 flex items-center gap-4" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)' }}>
@@ -315,7 +314,6 @@ function BookingContent() {
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Review & Confirm</h2>
             <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Everything looks good? Confirm your booking below.</p>
 
-            {/* Booking Summary */}
             <div className="p-4 rounded-xl mb-5" style={{ background: '#FFF5EC' }}>
               <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>Booking Summary</h4>
               <div className="space-y-2 text-sm">
@@ -347,13 +345,10 @@ function BookingContent() {
                   ₹{agreedPrice.toLocaleString()}
                 </span>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 mb-3">
                 <div className="flex-1 p-3 rounded-xl text-center cursor-pointer transition-all hover:opacity-80"
-                  style={{ background: 'rgba(212,101,30,0.04)', border: '1.5px solid rgba(212,101,30,0.15)' }}
-                  onClick={() => {
-                    const newPrice = prompt(`Enter your offer (Range: ₹${pandit.priceMin} - ₹${pandit.priceMax}):`, agreedPrice.toString())
-                    if (newPrice && !isNaN(parseInt(newPrice))) setAgreedPrice(parseInt(newPrice))
-                  }}>
+                  style={{ background: negotiating ? 'rgba(212,101,30,0.1)' : 'rgba(212,101,30,0.04)', border: `1.5px solid ${negotiating ? '#D4651E' : 'rgba(212,101,30,0.15)'}` }}
+                  onClick={() => setNegotiating(!negotiating)}>
                   <div className="text-xl mb-1">💬</div>
                   <div className="text-xs font-bold" style={{ color: '#D4651E' }}>Negotiate</div>
                   <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Enter your offer</div>
@@ -366,6 +361,20 @@ function BookingContent() {
                   <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Discuss directly</div>
                 </a>
               </div>
+              {negotiating && (
+                <div className="flex items-center gap-2 p-3 rounded-xl" style={{ background: '#FFF5EC', border: '1.5px solid #D4651E' }}>
+                  <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Your offer: ₹</span>
+                  <input type="number" autoFocus
+                    defaultValue={agreedPrice}
+                    placeholder={`${pandit.priceMin} - ${pandit.priceMax}`}
+                    onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
+                    className="flex-1 bg-transparent text-lg font-bold text-center outline-none"
+                    style={{ color: '#D4651E' }} />
+                  <button onClick={() => setNegotiating(false)}
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg text-white"
+                    style={{ background: '#D4651E' }}>Done</button>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-center p-4 rounded-xl mb-5" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
