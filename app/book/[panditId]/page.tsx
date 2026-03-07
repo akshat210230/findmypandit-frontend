@@ -4,7 +4,6 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getPandit, getServices, createBooking } from '@/lib/api'
 import AddressInput from '@/components/AddressInput'
 
-// ─── CHOGHADIYA CALCULATOR ─────────────────────────
 const CHOGHADIYA_DAY = ['Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog']
 
 const CHOGHADIYA_INFO: Record<string, { type: string; color: string; label: string }> = {
@@ -40,12 +39,12 @@ function fmtHr(h: number): string {
   return `${d}:${mins.toString().padStart(2, '0')} ${p}`
 }
 
-// ─── BOOKING PAGE ──────────────────────────────────
 function BookingContent() {
   const { panditId } = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
   const preSelectedService = searchParams.get('service') || ''
+  const preSelectedPrice = parseInt(searchParams.get('price') || '0')
 
   const [pandit, setPandit] = useState<any>(null)
   const [services, setServices] = useState<any[]>([])
@@ -101,7 +100,9 @@ function BookingContent() {
     }
   }, [selectedDate])
 
-  useEffect(() => { if (pandit) setAgreedPrice(pandit.priceMin || 2000) }, [pandit])
+  useEffect(() => {
+    if (pandit) setAgreedPrice(preSelectedPrice || pandit.priceMin || 2000)
+  }, [pandit, preSelectedPrice])
 
   const handleAddressSelect = (details: any) => {
     setAddress(details.fullAddress)
@@ -139,10 +140,9 @@ function BookingContent() {
   const today = new Date().toISOString().split('T')[0]
   const dayPeriods = choghadiya.filter(c => c.isDay)
   const goodPeriods = dayPeriods.filter(c => c.type === 'best' || c.type === 'good')
-
   const stepLabels = preSelectedService
-    ? ['Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
-    : ['Ceremony', 'Date & Time', 'Address', 'Price & Confirm', 'Confirmed']
+    ? ['Date & Time', 'Address', 'Confirm', 'Done']
+    : ['Ceremony', 'Date & Time', 'Address', 'Confirm', 'Done']
 
   return (
     <div className="min-h-screen pt-20 pb-12 px-4" style={{ background: '#FFFAF5' }}>
@@ -180,8 +180,12 @@ function BookingContent() {
               <p className="text-sm" style={{ color: '#7A6350' }}>{pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}</p>
             </div>
             <div className="ml-auto text-right">
-              <div className="font-bold" style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</div>
-              <div className="text-xs" style={{ color: '#B09980' }}>per ceremony</div>
+              <div className="font-bold" style={{ color: '#D4651E' }}>
+                {preSelectedService ? preSelectedService : `₹${pandit.priceMin?.toLocaleString()} - ₹${pandit.priceMax?.toLocaleString()}`}
+              </div>
+              <div className="text-xs" style={{ color: '#B09980' }}>
+                {preSelectedPrice ? `₹${preSelectedPrice.toLocaleString()}` : 'per ceremony'}
+              </div>
             </div>
           </div>
         )}
@@ -268,7 +272,7 @@ function BookingContent() {
           </div>
         )}
 
-        {/* ─── STEP 3: ADDRESS (Google Places) ─── */}
+        {/* ─── STEP 3: ADDRESS ─── */}
         {step === 3 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Ceremony Location</h2>
@@ -276,18 +280,9 @@ function BookingContent() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Address *</label>
-                <AddressInput
-                  value={address}
-                  onChange={setAddress}
-                  onAddressSelect={handleAddressSelect}
-                  placeholder="Start typing your address..."
-                />
-                <p className="text-xs mt-1.5" style={{ color: '#B09980' }}>
-                  📍 Google will suggest addresses as you type
-                </p>
+                <AddressInput value={address} onChange={setAddress} onAddressSelect={handleAddressSelect} placeholder="Start typing your address..." />
+                <p className="text-xs mt-1.5" style={{ color: '#B09980' }}>📍 Google will suggest addresses as you type</p>
               </div>
-
-              {/* Auto-filled fields from Google Places */}
               {(addressCity || addressState || addressPincode) && (
                 <div className="p-3 rounded-xl" style={{ background: '#E8F5EC', border: '1px solid rgba(45,143,78,0.1)' }}>
                   <p className="text-xs font-semibold mb-2" style={{ color: '#2D8F4E' }}>✓ Auto-filled from Google</p>
@@ -298,7 +293,6 @@ function BookingContent() {
                   </div>
                 </div>
               )}
-
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Special Instructions (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
@@ -315,13 +309,14 @@ function BookingContent() {
           </div>
         )}
 
-        {/* ─── STEP 4: PRICE CONFIRMATION ─── */}
+        {/* ─── STEP 4: CONFIRM ─── */}
         {step === 4 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Review & Confirm</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Review your booking and confirm the price</p>
+            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Everything looks good? Confirm your booking below.</p>
 
-            <div className="p-4 rounded-xl mb-6" style={{ background: '#FFF5EC' }}>
+            {/* Booking Summary */}
+            <div className="p-4 rounded-xl mb-5" style={{ background: '#FFF5EC' }}>
               <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>Booking Summary</h4>
               <div className="space-y-2 text-sm">
                 {[
@@ -341,44 +336,52 @@ function BookingContent() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl mb-6" style={{ background: '#FFFFFF', border: '2px solid rgba(212,101,30,0.15)' }}>
-              <h4 className="text-sm font-bold mb-2" style={{ color: '#4A3728' }}>💰 Confirm Price</h4>
-              <p className="text-xs mb-3" style={{ color: '#7A6350' }}>
-                Pandit&apos;s range: <strong style={{ color: '#D4651E' }}>₹{pandit.priceMin?.toLocaleString()} - ₹{pandit.priceMax?.toLocaleString()}</strong>
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Your offer: ₹</span>
-                <input type="number" value={agreedPrice} onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
-                  min={pandit.priceMin || 0} max={pandit.priceMax || 100000}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-lg font-bold text-center"
-                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.15)', color: '#D4651E' }} />
+            {/* Price Section */}
+            <div className="p-4 rounded-xl mb-5" style={{ background: '#FFFFFF', border: '2px solid rgba(212,101,30,0.15)' }}>
+              <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>💰 Price</h4>
+              <div className="flex items-center justify-between p-3 rounded-xl mb-4" style={{ background: '#FFF5EC' }}>
+                <span className="font-semibold" style={{ color: '#4A3728' }}>
+                  {preSelectedPrice ? 'Service Price' : "Pandit's Min Price"}
+                </span>
+                <span className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>
+                  ₹{agreedPrice.toLocaleString()}
+                </span>
               </div>
-              <div className="flex gap-2 mt-3">
-                {[pandit.priceMin, Math.round((pandit.priceMin + pandit.priceMax) / 2), pandit.priceMax].filter(Boolean).map((p, i) => (
-                  <button key={i} onClick={() => setAgreedPrice(p)}
-                    className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
-                    style={{
-                      background: agreedPrice === p ? 'rgba(212,101,30,0.08)' : 'rgba(180,130,80,0.04)',
-                      color: agreedPrice === p ? '#D4651E' : '#7A6350',
-                      border: `1px solid ${agreedPrice === p ? 'rgba(212,101,30,0.2)' : 'rgba(180,130,80,0.08)'}`,
-                    }}>₹{p?.toLocaleString()}{i === 0 ? ' (Min)' : i === 2 ? ' (Max)' : ''}</button>
-                ))}
+              <div className="flex gap-3">
+                <div className="flex-1 p-3 rounded-xl text-center cursor-pointer transition-all hover:opacity-80"
+                  style={{ background: 'rgba(212,101,30,0.04)', border: '1.5px solid rgba(212,101,30,0.15)' }}
+                  onClick={() => {
+                    const newPrice = prompt(`Enter your offer (Range: ₹${pandit.priceMin} - ₹${pandit.priceMax}):`, agreedPrice.toString())
+                    if (newPrice && !isNaN(parseInt(newPrice))) setAgreedPrice(parseInt(newPrice))
+                  }}>
+                  <div className="text-xl mb-1">💬</div>
+                  <div className="text-xs font-bold" style={{ color: '#D4651E' }}>Negotiate</div>
+                  <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Enter your offer</div>
+                </div>
+                <a href={`tel:${pandit.user?.phone || ''}`}
+                  className="flex-1 p-3 rounded-xl text-center transition-all hover:opacity-80 no-underline"
+                  style={{ background: 'rgba(45,143,78,0.04)', border: '1.5px solid rgba(45,143,78,0.15)' }}>
+                  <div className="text-xl mb-1">📞</div>
+                  <div className="text-xs font-bold" style={{ color: '#2D8F4E' }}>Call Pandit</div>
+                  <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Discuss directly</div>
+                </a>
               </div>
             </div>
 
-            <div className="flex justify-between items-center p-4 rounded-xl mb-6" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
+            <div className="flex justify-between items-center p-4 rounded-xl mb-5" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
               <span className="font-bold" style={{ color: '#2C1810' }}>Total Amount</span>
               <span className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>₹{agreedPrice.toLocaleString()}</span>
             </div>
 
-            <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>By confirming, the pandit will be notified. Payment will be collected later.</p>
+            <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>By confirming, the pandit will be notified. Payment collected after ceremony.</p>
 
             <div className="flex gap-3">
               <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
               <button onClick={handleSubmit} disabled={!agreedPrice || submitting}
                 className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
-                {submitting ? 'Booking...' : '✓ Confirm Booking'}</button>
+                {submitting ? 'Booking...' : '✓ Confirm Booking'}
+              </button>
             </div>
           </div>
         )}
@@ -395,8 +398,10 @@ function BookingContent() {
                   ['Ceremony', selectedServiceData?.name || preSelectedService],
                   ['Pandit', panditName],
                   ['Date', new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })],
-                  ['Time', selectedTime], ['Muhurat', selectedChoghadiya],
-                  ['Address', address], ['Amount', `₹${agreedPrice.toLocaleString()}`],
+                  ['Time', selectedTime],
+                  ['Muhurat', selectedChoghadiya],
+                  ['Address', address],
+                  ['Amount', `₹${agreedPrice.toLocaleString()}`],
                 ].map(([label, value], i) => (
                   <div key={i} className="flex justify-between">
                     <span style={{ color: '#7A6350' }}>{label}</span>
