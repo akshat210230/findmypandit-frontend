@@ -122,7 +122,7 @@ const fetchSamagri = async (ceremonyName: string) => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/samagri/generate?ceremony=${encodeURIComponent(ceremonyName)}`)
     const data = await res.json()
-    setSamagriItems(data.items.map((item: any) => ({ ...item, selected: true, qty: parseInt(item.quantity) || 1 })))
+    setSamagriItems(data.items.map((item: any) => ({ ...item, selected: true, qty: 1 })))
   } catch {
     setSamagriError('Failed to load samagri list. You can skip this step.')
   }
