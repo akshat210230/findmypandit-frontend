@@ -65,6 +65,11 @@ function BookingContent() {
   const [notes, setNotes] = useState('')
   const [agreedPrice, setAgreedPrice] = useState(0)
   const [choghadiya, setChoghadiya] = useState<any[]>([])
+  const [wantsSamagri, setWantsSamagri] = useState<boolean | null>(null)
+  const [samagriItems, setSamagriItems] = useState<any[]>([])
+  const [samagriLoading, setSamagriLoading] = useState(false)
+  const [samagriError, setSamagriError] = useState('')
+
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -82,12 +87,12 @@ function BookingContent() {
         setPandit(panditRes.data.pandit)
         const allServices = servicesRes.data.services || []
         setServices(allServices)
-        if (preSelectedService) {
-          const match = allServices.find((s: any) =>
-            s.name.toLowerCase().includes(preSelectedService.toLowerCase())
-          )
-          if (match) { setSelectedService(match.id); setStep(2) }
-        }
+       if (preSelectedService) {
+  const match = allServices.find((s: any) =>
+    s.name.toLowerCase().includes(preSelectedService.toLowerCase())
+  )
+  if (match) { setSelectedService(match.id); setStep(1.5) }
+}
       } catch (err) { console.error('Failed to load data') }
       setLoading(false)
     }
@@ -111,7 +116,18 @@ function BookingContent() {
     setAddressState(details.state)
     setAddressPincode(details.pincode)
   }
-
+const fetchSamagri = async (ceremonyName: string) => {
+  setSamagriLoading(true)
+  setSamagriError('')
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/samagri/generate?ceremony=${encodeURIComponent(ceremonyName)}`)
+    const data = await res.json()
+    setSamagriItems(data.items.map((item: any) => ({ ...item, selected: true, qty: parseInt(item.quantity) || 1 })))
+  } catch {
+    setSamagriError('Failed to load samagri list. You can skip this step.')
+  }
+  setSamagriLoading(false)
+}
   const handleSubmit = async () => {
     setError(''); setSubmitting(true)
     try {
@@ -141,6 +157,9 @@ function BookingContent() {
   const today = new Date().toISOString().split('T')[0]
   const dayPeriods = choghadiya.filter(c => c.isDay)
   const goodPeriods = dayPeriods.filter(c => c.type === 'best' || c.type === 'good')
+  const samagriTotal = samagriItems.filter(i => i.selected).reduce((sum, i) => sum + i.estimatedPrice * i.qty, 0)
+const discount = wantsSamagri ? Math.round(agreedPrice * 0.05) : 0
+const finalTotal = agreedPrice - discount + (wantsSamagri ? 0 : 0)
   const stepLabels = preSelectedService
     ? ['Date & Time', 'Address', 'Confirm', 'Done']
     : ['Ceremony', 'Date & Time', 'Address', 'Confirm', 'Done']
@@ -210,12 +229,109 @@ function BookingContent() {
                 </label>
               ))}
             </div>
-            <button onClick={() => selectedService && setStep(2)} disabled={!selectedService}
+            <button onClick={() => selectedService && setStep(1.5)} disabled={!selectedService}
               className="w-full mt-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
           </div>
         )}
+{/* ─── STEP 1.5: SAMAGRI ─── */}
+{step === 1.5 && (
+  <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+    <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Samagri Kit</h2>
+    <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Would you like us to arrange the puja items?</p>
 
+    {/* Choice Cards */}
+    {wantsSamagri === null && (
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div onClick={() => setWantsSamagri(false)}
+          className="p-5 rounded-2xl text-center cursor-pointer transition-all hover:opacity-90"
+          style={{ border: '2px solid rgba(180,130,80,0.15)', background: '#FFF5EC' }}>
+          <div className="text-4xl mb-3">🙏</div>
+          <div className="font-bold text-sm mb-1" style={{ color: '#2C1810' }}>Pandit Only</div>
+          <div className="text-xs" style={{ color: '#7A6350' }}>I'll arrange samagri myself</div>
+        </div>
+        <div onClick={() => { setWantsSamagri(true); fetchSamagri(preSelectedService || selectedServiceData?.name || '') }}
+          className="p-5 rounded-2xl text-center cursor-pointer transition-all hover:opacity-90 relative"
+          style={{ border: '2px solid #D4651E', background: 'rgba(212,101,30,0.04)' }}>
+          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-1 rounded-full text-white" style={{ background: '#D4651E' }}>RECOMMENDED</div>
+          <div className="text-4xl mb-3">🛒</div>
+          <div className="font-bold text-sm mb-1" style={{ color: '#2C1810' }}>Pandit + Samagri</div>
+          <div className="text-xs" style={{ color: '#7A6350' }}>We deliver everything to you</div>
+          <div className="mt-2 text-xs font-bold px-2 py-1 rounded-full" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>🎁 Free delivery + 5% off</div>
+        </div>
+      </div>
+    )}
+
+    {/* Samagri List */}
+    {wantsSamagri === true && (
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-bold" style={{ color: '#2C1810' }}>AI-Generated Samagri List</span>
+          <button onClick={() => setWantsSamagri(null)} className="text-xs" style={{ color: '#B09980' }}>Change</button>
+        </div>
+        <div className="p-3 rounded-xl mb-4 text-xs font-semibold" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>
+          🎁 Free delivery + 5% off pandit fee applied!
+        </div>
+        {samagriLoading && (
+          <div className="text-center py-8" style={{ color: '#B09980' }}>
+            <div className="text-2xl mb-2">🕉️</div>
+            <div className="text-sm">AI is generating your samagri list...</div>
+          </div>
+        )}
+        {samagriError && <div className="text-sm p-3 rounded-xl mb-3" style={{ background: '#FEE8E8', color: '#C53030' }}>{samagriError}</div>}
+        {!samagriLoading && samagriItems.length > 0 && (
+          <div className="space-y-2 max-h-72 overflow-y-auto mb-4">
+            {samagriItems.map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl transition-all"
+                style={{ border: `1.5px solid ${item.selected ? 'rgba(212,101,30,0.2)' : 'rgba(180,130,80,0.08)'}`, background: item.selected ? 'rgba(212,101,30,0.02)' : '#fafafa', opacity: item.selected ? 1 : 0.5 }}>
+                <input type="checkbox" checked={item.selected} style={{ accentColor: '#D4651E' }}
+                  onChange={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, selected: !it.selected } : it))} />
+                <div className="flex-1">
+                  <div className="text-sm font-semibold" style={{ color: '#2C1810' }}>{item.name}</div>
+                  <div className="text-xs" style={{ color: '#B09980' }}>{item.nameHindi} · {item.quantity} {item.unit}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: Math.max(1, it.qty - 1) } : it))}
+                    className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center"
+                    style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>−</button>
+                  <span className="text-xs font-bold w-4 text-center" style={{ color: '#2C1810' }}>{item.qty}</span>
+                  <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: it.qty + 1 } : it))}
+                    className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center"
+                    style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>+</button>
+                </div>
+                <div className="text-sm font-bold" style={{ color: '#D4651E' }}>₹{(item.estimatedPrice * item.qty).toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!samagriLoading && samagriItems.length > 0 && (
+          <div className="p-3 rounded-xl flex justify-between items-center" style={{ background: '#FFF5EC' }}>
+            <span className="text-sm font-bold" style={{ color: '#4A3728' }}>Samagri Total</span>
+            <span className="font-extrabold" style={{ color: '#D4651E' }}>₹{samagriTotal.toLocaleString()}</span>
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Pandit Only confirmed */}
+    {wantsSamagri === false && (
+      <div>
+        <div className="p-4 rounded-xl mb-4 text-center" style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)' }}>
+          <div className="text-2xl mb-1">🙏</div>
+          <div className="text-sm font-semibold" style={{ color: '#4A3728' }}>Pandit Only selected</div>
+          <div className="text-xs mt-1" style={{ color: '#B09980' }}>You'll arrange samagri yourself</div>
+        </div>
+        <button onClick={() => setWantsSamagri(null)} className="w-full text-sm py-2 rounded-xl" style={{ border: '1px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Change selection</button>
+      </div>
+    )}
+
+    <div className="flex gap-3 mt-6">
+      <button onClick={() => setStep(preSelectedService ? 1.5 : 1)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+      <button onClick={() => wantsSamagri !== null && setStep(2)} disabled={wantsSamagri === null}
+        className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+    </div>
+  </div>
+)}
         {/* ─── STEP 2: DATE & CHOGHADIYA ─── */}
         {step === 2 && (
           <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
@@ -264,7 +380,7 @@ function BookingContent() {
               </div>
             )}
             <div className="flex gap-3 mt-4">
-              <button onClick={() => setStep(preSelectedService ? 2 : 1)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(1.5)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
               <button onClick={() => selectedDate && selectedTime && setStep(3)} disabled={!selectedDate || !selectedTime}
                 className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
             </div>
@@ -379,7 +495,11 @@ function BookingContent() {
 
             <div className="flex justify-between items-center p-4 rounded-xl mb-5" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
               <span className="font-bold" style={{ color: '#2C1810' }}>Total Amount</span>
-              <span className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>₹{agreedPrice.toLocaleString()}</span>
+              <div className="text-right">
+  {wantsSamagri && <div className="text-xs line-through" style={{ color: '#B09980' }}>₹{(agreedPrice + samagriTotal).toLocaleString()}</div>}
+  <div className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>₹{(agreedPrice - discount + (wantsSamagri ? samagriTotal : 0)).toLocaleString()}</div>
+  {wantsSamagri && <div className="text-xs font-semibold" style={{ color: '#2D8F4E' }}>You save ₹{discount.toLocaleString()}!</div>}
+</div>
             </div>
 
             <p className="text-xs text-center mb-4" style={{ color: '#B09980' }}>By confirming, the pandit will be notified. Payment collected after ceremony.</p>
