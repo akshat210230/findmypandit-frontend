@@ -175,7 +175,7 @@ function BookingContent() {
 const options = {
   key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   amount: orderData.amount,
-  currency: 'INR',
+  currency: 'USD',
         name: 'Aarambh',
         description: `${preSelectedService || selectedServiceData?.name} with ${panditName}`,
         order_id: orderData.orderId,
