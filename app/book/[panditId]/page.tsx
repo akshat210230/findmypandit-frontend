@@ -171,10 +171,10 @@ function BookingContent() {
       }
 
       // Step 2: Open Razorpay checkout
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: orderData.amount,
-        currency: orderData.currency,
+const options = {
+  key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+  amount: orderData.amount,
+  currency: 'INR',
         name: 'Aarambh',
         description: `${preSelectedService || selectedServiceData?.name} with ${panditName}`,
         order_id: orderData.orderId,
