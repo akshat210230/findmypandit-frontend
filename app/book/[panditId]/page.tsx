@@ -164,6 +164,7 @@ function BookingContent() {
         body: JSON.stringify({ amount: finalAmount, bookingId: 'pending' })
       })
       const orderData = await orderRes.json()
+      console.log('Razorpay order data:', orderData)
       if (!orderData.orderId) {
         setError('Failed to initiate payment. Please try again.')
         setPaymentLoading(false)
