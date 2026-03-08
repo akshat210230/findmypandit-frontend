@@ -52,6 +52,7 @@ function BookingContent() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [negotiating, setNegotiating] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
 
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState('')
@@ -99,6 +100,15 @@ function BookingContent() {
     fetchData()
   }, [panditId, router, preSelectedService])
 
+
+useEffect(() => {
+  const script = document.createElement('script')
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+  script.async = true
+  document.body.appendChild(script)
+  return () => { document.body.removeChild(script) }
+}, [])
+
   useEffect(() => {
     if (selectedDate) {
       setChoghadiya(getChoghadiyaForDate(new Date(selectedDate)))
@@ -127,6 +137,72 @@ const fetchSamagri = async (ceremonyName: string) => {
     setSamagriError('Failed to load samagri list. You can skip this step.')
   }
   setSamagriLoading(false)
+}
+
+
+const handlePayment = async () => {
+  setPaymentLoading(true)
+  setError('')
+  try {
+    const token = localStorage.getItem('token')
+    const finalAmount = agreedPrice - (wantsSamagri ? Math.round(agreedPrice * 0.05) : 0) + (wantsSamagri ? samagriTotal : 0)
+
+    // Step 1: Create booking first
+    const bookingRes = await createBooking({
+      panditId,
+      serviceId: selectedService,
+      bookingDate: selectedDate,
+      startTime: selectedTime,
+      address,
+      city: addressCity || 'Indore',
+      totalAmount: finalAmount,
+      specialRequests: notes || undefined,
+      choghadiya: selectedChoghadiya || undefined,
+    })
+    const bookingId = bookingRes.data.booking.id
+
+    // Step 2: Create Razorpay order
+    const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payment/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ amount: finalAmount, bookingId })
+    })
+    const orderData = await orderRes.json()
+
+    // Step 3: Open Razorpay checkout
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: 'Aarambh',
+      description: `${preSelectedService || selectedServiceData?.name} with ${panditName}`,
+      image: '/logo.png',
+      order_id: orderData.orderId,
+      handler: async (response: any) => {
+        // Step 4: Verify payment
+        const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payment/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ ...response, bookingId })
+        })
+        const verifyData = await verifyRes.json()
+        if (verifyData.success) {
+          setStep(5)
+        } else {
+          setError('Payment verification failed. Please contact support.')
+        }
+      },
+      prefill: { name: pandit.user?.firstName, email: '', contact: pandit.user?.phone || '' },
+      theme: { color: '#D4651E' },
+      modal: { ondismiss: () => setPaymentLoading(false) }
+    }
+
+    const rzp = new (window as any).Razorpay(options)
+    rzp.open()
+  } catch (err: any) {
+    setError(err.response?.data?.error || 'Payment failed. Please try again.')
+    setPaymentLoading(false)
+  }
 }
   const handleSubmit = async () => {
     setError(''); setSubmitting(true)
@@ -506,11 +582,11 @@ const finalTotal = agreedPrice - discount + (wantsSamagri ? 0 : 0)
 
             <div className="flex gap-3">
               <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
-              <button onClick={handleSubmit} disabled={!agreedPrice || submitting}
-                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
-                {submitting ? 'Booking...' : '✓ Confirm Booking'}
-              </button>
+<button onClick={handlePayment} disabled={!agreedPrice || paymentLoading}
+  className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40"
+  style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
+  {paymentLoading ? 'Processing...' : '💳 Pay & Confirm'}
+</button>
             </div>
           </div>
         )}
