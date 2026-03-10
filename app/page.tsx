@@ -36,13 +36,19 @@ function useScrollReveal() {
   return { ref, visible }
 }
 
-function RevealSection({ children, className = '', delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
+function RevealSection({ children, className = '', delay = 0, direction = 'up' }: {
+  children: React.ReactNode, className?: string, delay?: number, direction?: 'up' | 'left' | 'right'
+}) {
   const { ref, visible } = useScrollReveal()
+  const hiddenTransform =
+    direction === 'left'  ? 'translate(-64px, 0)' :
+    direction === 'right' ? 'translate(64px, 0)'  :
+                            'translate(0, 50px)'
   return (
     <div ref={ref} className={className} style={{
       opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(32px)',
-      transition: `opacity 0.8s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${delay}ms`
+      transform: visible ? 'translate(0,0)' : hiddenTransform,
+      transition: `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}ms`
     }}>
       {children}
     </div>
@@ -71,7 +77,7 @@ export default function HomePage() {
 
         {/* Rotating mandala rings */}
         <div className="absolute inset-0 flex items-center justify-center" style={{ transform: `translateY(${scrollY * 0.06}px)` }}>
-          <div className="animate-rotate-slow" style={{ opacity: 0.06 }}>
+          <div className="animate-rotate-slow" style={{ opacity: 0.1 }}>
             <svg viewBox="0 0 600 600" style={{ width: 800, height: 800 }} fill="none" stroke="#C05818" strokeWidth="0.5">
               <circle cx="300" cy="300" r="290" strokeDasharray="4 8" />
               <circle cx="300" cy="300" r="240" />
@@ -105,7 +111,7 @@ export default function HomePage() {
         }} />
 
         {/* Dot grid */}
-        <div className="absolute inset-0" style={{ opacity: 0.018, backgroundImage: 'radial-gradient(#8B4513 1.2px, transparent 1.2px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute inset-0" style={{ opacity: 0.04, backgroundImage: 'radial-gradient(#8B4513 1.2px, transparent 1.2px)', backgroundSize: '28px 28px' }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-24">
@@ -151,9 +157,11 @@ export default function HomePage() {
               fontWeight: 700,
               letterSpacing: '-2px',
               marginBottom: 12,
-              background: 'linear-gradient(135deg, #2C1810 0%, #D4651E 45%, #B8860B 100%)',
+              background: 'linear-gradient(135deg, #2C1810 0%, #D4651E 30%, #B8860B 50%, #D4651E 70%, #2C1810 100%)',
+              backgroundSize: '200% auto',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              animation: 'textShimmer 5s ease-in-out infinite',
             }}>
               Aarambh
             </h1>
@@ -238,18 +246,19 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div style={{
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 0.8s ease 0.6s',
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, maxWidth: 520, margin: '0 auto'
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, maxWidth: 520, margin: '0 auto' }}>
             {[
               { val: '15,000+', label: 'Pujas Done' },
               { val: '500+', label: 'Verified Pandits' },
               { val: '50+', label: 'Cities' },
               { val: '4.8★', label: 'Rating' },
             ].map((s, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
+              <div key={i} style={{
+                textAlign: 'center',
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(28px)',
+                transition: `opacity 0.8s cubic-bezier(0.16,1,0.3,1) ${650 + i * 120}ms, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${650 + i * 120}ms`
+              }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', fontWeight: 700, color: '#D4651E', lineHeight: 1 }}>{s.val}</div>
                 <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', color: '#B09980', marginTop: 4, fontWeight: 500 }}>{s.label}</div>
               </div>
@@ -287,7 +296,7 @@ export default function HomePage() {
           </RevealSection>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
             {STEPS.map((step, i) => (
-              <RevealSection key={i} delay={i * 100}>
+              <RevealSection key={i} delay={i * 150}>
                 <div className="card-hover" style={{
                   padding: '32px 28px',
                   borderRadius: 20,
@@ -333,7 +342,7 @@ export default function HomePage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {SERVICES.map((s, i) => (
-              <RevealSection key={i} delay={i * 80}>
+              <RevealSection key={i} delay={i * 150}>
                 <Link href={`/search?service=${encodeURIComponent(s.name)}`} style={{ textDecoration: 'none', display: 'block' }}>
                   <div className="card-hover" style={{
                     padding: '32px 28px',
@@ -452,7 +461,7 @@ export default function HomePage() {
           </RevealSection>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {REVIEWS.map((r, i) => (
-              <RevealSection key={i} delay={i * 100}>
+              <RevealSection key={i} delay={i * 120} direction={i % 2 === 0 ? 'left' : 'right'}>
                 <div className="card-hover" style={{
                   padding: '32px 28px', borderRadius: 20, background: '#FFFFFF',
                   border: '1px solid rgba(180,130,80,0.08)', boxShadow: '0 2px 16px rgba(120,80,30,0.04)',

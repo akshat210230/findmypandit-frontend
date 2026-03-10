@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { login, googleLogin } from '@/lib/api'
 import AarambhLogo from '@/components/AarambhLogo'
+import ShlokGreeting from '@/components/ui/ShlokGreeting'
 
 declare global {
   interface Window {
@@ -16,6 +17,9 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [shlok, setShlok] = useState<{ show: boolean; role: string; redirect: string }>({
+    show: false, role: '', redirect: '',
+  })
 
   const handleGoogleResponse = useCallback(async (response: any) => {
     setError('')
@@ -24,7 +28,8 @@ export default function LoginPage() {
       const res = await googleLogin({ credential: response.credential })
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = res.data.user.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      const redirect = res.data.user.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      setShlok({ show: true, role: res.data.user.role, redirect })
     } catch (err: any) {
       setError(err.response?.data?.error || 'Google login failed. Please try again.')
     }
@@ -75,7 +80,8 @@ export default function LoginPage() {
       const res = await login(form)
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = res.data.user.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      const redirect = res.data.user.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      setShlok({ show: true, role: res.data.user.role, redirect })
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.')
     }
@@ -84,6 +90,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-16" style={{ background: '#FFFAF5' }}>
+      {shlok.show && (
+        <ShlokGreeting
+          role={shlok.role}
+          redirectPath={shlok.redirect}
+          onComplete={() => { window.location.href = shlok.redirect }}
+        />
+      )}
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

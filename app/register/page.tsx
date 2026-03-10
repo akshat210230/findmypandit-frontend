@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { register, googleLogin } from '@/lib/api'
 import AarambhLogo from '@/components/AarambhLogo'
+import ShlokGreeting from '@/components/ui/ShlokGreeting'
 
 declare global {
   interface Window {
@@ -16,6 +17,9 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', role: 'FAMILY' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [shlok, setShlok] = useState<{ show: boolean; role: string; redirect: string }>({
+    show: false, role: '', redirect: '',
+  })
 
   const handleGoogleResponse = useCallback(async (response: any) => {
     setError('')
@@ -24,7 +28,7 @@ export default function RegisterPage() {
       const res = await googleLogin({ credential: response.credential })
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = '/dashboard'
+      setShlok({ show: true, role: res.data.user.role ?? 'FAMILY', redirect: '/dashboard' })
     } catch (err: any) {
       setError(err.response?.data?.error || 'Google sign up failed. Please try again.')
     }
@@ -62,7 +66,8 @@ export default function RegisterPage() {
       const res = await register(form)
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = form.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      const redirect = form.role === 'PANDIT' ? '/pandit-dashboard' : '/dashboard'
+      setShlok({ show: true, role: form.role, redirect })
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed.')
     }
@@ -73,6 +78,13 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-12" style={{ background: '#FFFAF5' }}>
+      {shlok.show && (
+        <ShlokGreeting
+          role={shlok.role}
+          redirectPath={shlok.redirect}
+          onComplete={() => { window.location.href = shlok.redirect }}
+        />
+      )}
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4"><AarambhLogo size={48} showText={false} /></div>
