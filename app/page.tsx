@@ -246,7 +246,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, maxWidth: 520, margin: '0 auto' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 24, maxWidth: 520, margin: '0 auto' }}>
             {[
               { val: '15,000+', label: 'Pujas Done' },
               { val: '500+', label: 'Verified Pandits' },

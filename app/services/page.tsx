@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getServices } from '@/lib/api'
+import SacredLoader from '@/components/ui/SacredLoader'
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([])
@@ -28,9 +29,7 @@ export default function ServicesPage() {
     router.push(`/search?service=${encodeURIComponent(service.name)}`)
   }
 
-  if (loading) return (
-    <div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading services...</div>
-  )
+  if (loading) return <SacredLoader message="Loading sacred ceremonies..." size="lg" />
 
   return (
     <div className="min-h-screen pt-20 pb-12 px-4" style={{ background: '#FFFAF5' }}>

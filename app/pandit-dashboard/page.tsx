@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMyBookings, updateBookingStatus, updatePanditProfile } from '@/lib/api'
 import api from '@/lib/api'
+import SacredLoader from '@/components/ui/SacredLoader'
 
 export default function PanditDashboard() {
   const router = useRouter()
@@ -107,7 +108,7 @@ export default function PanditDashboard() {
     CANCELLED: 'bg-red-100 text-red-700',
   }
 
-  if (loading) return <div className="min-h-screen bg-orange-50 pt-24 text-center text-gray-400">Loading...</div>
+  if (loading) return <SacredLoader message="Loading dashboard..." size="lg" />
 
   const pending = bookings.filter(b => b.status === 'PENDING')
   const confirmed = bookings.filter(b => b.status === 'CONFIRMED')
@@ -307,7 +308,7 @@ export default function PanditDashboard() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Bio</label>
                   <textarea value={profileForm.bio} onChange={e => setProfileForm({...profileForm, bio: e.target.value})} rows={3} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400 resize-none" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
                     <input value={profileForm.city} onChange={e => setProfileForm({...profileForm, city: e.target.value})} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400" />
@@ -321,7 +322,7 @@ export default function PanditDashboard() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Experience (years)</label>
                   <input type="number" value={profileForm.experienceYears} onChange={e => setProfileForm({...profileForm, experienceYears: parseInt(e.target.value) || 0})} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Min Price (₹)</label>
                     <input type="number" value={profileForm.priceMin} onChange={e => setProfileForm({...profileForm, priceMin: parseInt(e.target.value) || 0})} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-orange-50 focus:outline-none focus:border-orange-400" />
@@ -355,7 +356,7 @@ export default function PanditDashboard() {
                   <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Bio</div>
                   <p className="text-gray-700">{pandit?.bio || 'No bio added'}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Location</div>
                     <p className="text-gray-700 font-semibold">{pandit?.city}, {pandit?.state}</p>
@@ -365,7 +366,7 @@ export default function PanditDashboard() {
                     <p className="text-gray-700 font-semibold">{pandit?.experienceYears} years</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Price Range</div>
                     <p className="text-orange-600 font-bold">₹{pandit?.priceMin?.toLocaleString()} - ₹{pandit?.priceMax?.toLocaleString()}</p>

@@ -4,46 +4,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ════════════════════════════════════════
+   TERRACOTTA TEMPLE — CSS VARIABLE SYSTEM
+   ════════════════════════════════════════ */
 :root {
-  /* Manuscript paper tones */
-  --bg: #F5E6C8;
-  --bg-up: #EDD9A3;
-  --bg-warm: #E8C97A;
-  --card: #FAF0D7;
-  --card-deep: #F0E0B0;
+  /* Base backgrounds — terracotta temple wall */
+  --bg: #7D5030;
+  --bg-up: #6B4020;
+  --bg-deep: #5C3418;
+  --bg-card: rgba(255,240,200,0.06);
+  --bg-card-hover: rgba(255,240,200,0.1);
 
-  /* Text — soft ink on parchment */
-  --text: #2C1A0E;
-  --text-2: #6B4423;
-  --text-3: #A07850;
+  /* Text on dark background */
+  --text: #F5E6B0;
+  --text-2: rgba(245,230,176,0.65);
+  --text-3: rgba(245,230,176,0.35);
+  --text-dark: #2C1A0E;
 
   /* Saffron accent */
   --accent: #C4520E;
-  --accent-h: #A84010;
-  --accent-glow: rgba(196,82,14,0.15);
-  --accent-soft: #F5DEB3;
+  --accent-h: #E06020;
+  --accent-glow: rgba(196,82,14,0.25);
+  --accent-soft: rgba(196,82,14,0.12);
 
-  /* Sacred metals */
-  --gold: #9A7209;
-  --saffron: #D4780A;
+  /* Gold */
+  --gold: #E8C97A;
+  --gold-dim: rgba(232,201,122,0.5);
 
-  /* Status colors — warmed to match palette */
-  --green: #2D6B35;
-  --green-s: #D4E8C2;
-  --red: #8B2020;
-  --red-s: #F0D0D0;
-  --yellow: #8B6914;
-  --yellow-s: #F5EAC0;
-  --blue: #1A4A7A;
-  --blue-s: #D0E0F0;
+  /* Status */
+  --green: #4A9E5A;
+  --green-s: rgba(74,158,90,0.15);
+  --red: #C05050;
+  --red-s: rgba(192,80,80,0.15);
+  --yellow: #D4A017;
+  --yellow-s: rgba(212,160,23,0.15);
+  --blue: #4A80C0;
+  --blue-s: rgba(74,128,192,0.15);
 
-  /* Borders — warm and subtle */
-  --border: rgba(120,70,20,0.15);
-  --border-s: rgba(120,70,20,0.25);
+  /* Borders */
+  --border: rgba(232,201,122,0.1);
+  --border-s: rgba(232,201,122,0.2);
 
-  /* Shadows — warm brown toned */
-  --shadow: 0 4px 24px rgba(80,40,10,0.1);
-  --shadow-lg: 0 12px 48px rgba(80,40,10,0.15);
+  /* Shadows */
+  --shadow: 0 4px 24px rgba(0,0,0,0.2);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.3);
 
   --r: 20px; --rs: 14px;
 }
@@ -51,26 +55,16 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
+/* ─── BODY — Terracotta temple wall with stone texture ─── */
 body {
   font-family: 'Outfit', system-ui, sans-serif;
-  background-color: #F5E6C8;
+  background: #7D5030;
   background-image:
-    /* Layer 1: Random fiber/noise using SVG turbulence */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23p)' opacity='0.08'/%3E%3C/svg%3E"),
-    /* Layer 2: Subtle diagonal fiber lines */
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 2px,
-      rgba(120,70,20,0.015) 2px,
-      rgba(120,70,20,0.015) 3px
-    ),
-    /* Layer 3: Warm radial center glow — lighter in center like held up to light */
-    radial-gradient(ellipse 85% 75% at 50% 40%, #FAF0D7 0%, #F5E6C8 45%, #E8D4A0 100%),
-    /* Layer 4: Edge darkening vignette */
-    radial-gradient(ellipse 120% 110% at 50% 50%, transparent 50%, rgba(80,35,5,0.12) 100%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(0,0,0,0.015) 3px, rgba(0,0,0,0.015) 4px),
+    radial-gradient(ellipse 120% 110% at 50% 50%, transparent 50%, rgba(0,0,0,0.2) 100%);
+  background-size: 300px 300px, 100% 100%, 100% 100%;
   background-attachment: fixed;
-  background-size: 400px 400px, 100% 100%, 100% 100%, 100% 100%;
   color: var(--text);
   font-weight: 300;
   letter-spacing: 0.2px;
@@ -79,12 +73,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── PARCHMENT LAYER 1 — disabled, replaced by body background-image ─── */
+/* ─── TEXTURE OVERLAY 1 — disabled slot ─── */
 body::before {
   display: none;
 }
 
-/* ─── PARCHMENT LAYER 2 — crushed paper highlight streaks ─── */
+/* ─── TEXTURE OVERLAY 2 — stone wall highlight streaks ─── */
 body::after {
   content: '';
   position: fixed;
@@ -92,22 +86,21 @@ body::after {
   z-index: 9998;
   pointer-events: none;
   background-image:
-    /* Crushed paper highlight streaks */
     repeating-linear-gradient(
       102deg,
       transparent,
       transparent 40px,
-      rgba(255,240,180,0.03) 40px,
-      rgba(255,240,180,0.03) 41px
+      rgba(255,220,120,0.025) 40px,
+      rgba(255,220,120,0.025) 41px
     ),
     repeating-linear-gradient(
       -15deg,
       transparent,
       transparent 60px,
-      rgba(80,40,10,0.02) 60px,
-      rgba(80,40,10,0.02) 61px
+      rgba(0,0,0,0.03) 60px,
+      rgba(0,0,0,0.03) 61px
     );
-  mix-blend-mode: multiply;
+  mix-blend-mode: overlay;
 }
 
 /* ─── TYPOGRAPHY ─── */
@@ -134,111 +127,113 @@ h4 { font-weight: 400 !important; }
 a { color: inherit; }
 button { font-family: 'Outfit', system-ui, sans-serif !important; font-weight: 500 !important; letter-spacing: 0.3px !important; transition: all .25s !important; }
 
-/* Typography softening — ink on aged paper feel */
+/* Typography softening — ink on stone feel */
 strong, b, .font-bold, .font-extrabold, .font-black { font-weight: 500 !important; }
 .font-semibold { font-weight: 400 !important; }
 .font-medium { font-weight: 300 !important; }
 .text-xs, .text-sm { letter-spacing: 0.3px; }
 
-/* Inputs */
+/* ─── INPUTS ─── */
 input, select, textarea {
   font-family: 'Outfit', system-ui, sans-serif !important;
-  background: rgba(237,217,163,0.5) !important;
-  border: 1.5px solid rgba(120,70,20,0.2) !important;
+  background: rgba(0,0,0,0.2) !important;
+  border: 1.5px solid var(--border) !important;
   border-radius: var(--rs) !important;
   color: var(--text) !important;
   transition: all .3s !important;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 4px rgba(196,82,14,0.12) !important;
-  background: #FAF0D7 !important;
+  box-shadow: 0 0 0 4px var(--accent-glow) !important;
+  background: rgba(0,0,0,0.3) !important;
   outline: none !important;
 }
 input::placeholder, textarea::placeholder { color: var(--text-3) !important; }
-::selection { background: var(--accent-soft); color: var(--accent); }
+::selection { background: var(--accent-soft); color: var(--gold); }
 
 /* ─── SECTION BACKGROUNDS ─── */
-main, .min-h-screen { background: #F5E6C8 !important; }
-.bg-white { background: var(--card) !important; border-color: var(--border) !important; }
-.bg-orange-50 { background: #EDD9A3 !important; }
-.bg-orange-100 { background: #F5DEB3 !important; }
-.bg-gray-100, .bg-gray-50 { background: #EDD9A3 !important; }
-.bg-gradient-warm { background: linear-gradient(135deg, #EDD9A3, #F5E6C8) !important; }
+main, .min-h-screen { background: var(--bg) !important; }
+.bg-white { background: var(--bg-card) !important; border: 1px solid var(--border) !important; }
+.bg-orange-50 { background: var(--bg-up) !important; }
+.bg-orange-100 { background: var(--accent-soft) !important; }
+.bg-gray-100, .bg-gray-50 { background: var(--bg-up) !important; }
+.bg-gradient-warm { background: linear-gradient(135deg, var(--bg-up), var(--bg)) !important; }
 
-/* Accent */
+/* ─── ACCENT ─── */
 .bg-orange-600 { background: var(--accent) !important; box-shadow: 0 4px 16px var(--accent-glow) !important; }
 .bg-orange-700 { background: var(--accent-h) !important; }
 .hover\:bg-orange-700:hover { background: var(--accent-h) !important; }
-.text-orange-600 { color: var(--accent) !important; }
+.text-orange-600 { color: var(--gold) !important; }
 .border-orange-100, .border-orange-200 { border-color: var(--border) !important; }
 .border-orange-300, .border-orange-400, .border-orange-500 { border-color: var(--accent) !important; }
 .focus\:border-orange-400:focus { border-color: var(--accent) !important; }
 .accent-orange-600 { accent-color: var(--accent) !important; }
 
-/* Status */
+/* ─── STATUS COLORS ─── */
 .bg-green-100, .bg-green-50 { background: var(--green-s) !important; }
 .text-green-700, .text-green-600, .text-green-500 { color: var(--green) !important; }
 .bg-green-600, .bg-green-500 { background: var(--green) !important; }
-.border-green-200 { border-color: rgba(45,107,53,0.2) !important; }
+.border-green-200 { border-color: rgba(74,158,90,0.2) !important; }
 .bg-red-50, .bg-red-100 { background: var(--red-s) !important; }
 .text-red-700, .text-red-600 { color: var(--red) !important; }
 .bg-yellow-100 { background: var(--yellow-s) !important; }
 .text-yellow-700, .text-yellow-600 { color: var(--yellow) !important; }
-.border-yellow-200 { border-color: rgba(139,105,20,0.2) !important; }
+.border-yellow-200 { border-color: rgba(212,160,23,0.2) !important; }
 .bg-blue-100 { background: var(--blue-s) !important; }
 .text-blue-600 { color: var(--blue) !important; }
 
-/* Text */
+/* ─── TEXT COLORS ─── */
 .text-gray-900, .text-gray-800 { color: var(--text) !important; }
-.text-gray-700 { color: #4A2C10 !important; }
-.text-gray-600, .text-gray-500 { color: var(--text-2) !important; }
+.text-gray-700, .text-gray-600, .text-gray-500 { color: var(--text-2) !important; }
 .text-gray-400 { color: var(--text-3) !important; }
-.text-yellow-500 { color: #C4940A !important; }
+.text-yellow-500 { color: var(--yellow) !important; }
 
-/* Borders */
+/* ─── BORDERS ─── */
 .border-gray-100, .border-gray-200, .border-gray-300 { border-color: var(--border) !important; }
 
-/* Cards */
+/* ─── CARD SHADOWS ─── */
 .hover\:shadow-md:hover, .hover\:shadow-sm:hover {
   box-shadow: var(--shadow-lg) !important;
   border-color: var(--border-s) !important;
 }
 
-/* Avatars */
+/* ─── AVATARS ─── */
 .from-orange-500 { --tw-gradient-from: var(--accent) !important; }
 .to-yellow-500 { --tw-gradient-to: var(--gold) !important; }
 
-/* Rounded */
+/* ─── ROUNDED ─── */
 .rounded-xl { border-radius: var(--r) !important; }
 .rounded-lg { border-radius: var(--rs) !important; }
 
-/* Footer */
-footer, .bg-gray-800 { background: #1A0C05 !important; color: rgba(255,255,255,0.5) !important; }
-footer .text-white { color: #F5E6C8 !important; }
+/* ─── FOOTER ─── */
+footer, .bg-gray-800 { background: #3D1F08 !important; color: rgba(245,230,176,0.45) !important; }
+footer .text-white { color: var(--text) !important; }
 
 /* ─── NAV ─── */
 nav.fixed {
   font-family: 'Outfit', system-ui, sans-serif;
-  background: rgba(245,230,200,0.92) !important;
+  background: rgba(93,52,24,0.92) !important;
   backdrop-filter: blur(24px) !important;
-  border-bottom: 1px solid rgba(120,70,20,0.1) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
 .bg-gradient-to-r.from-orange-600.to-orange-500 {
-  background: linear-gradient(135deg, #A84010, #C4520E, #D4780A) !important;
+  background: linear-gradient(135deg, #A84010, #C4520E, #E06020) !important;
 }
 .bg-white\/95 {
-  background: rgba(245,230,200,0.94) !important;
+  background: rgba(93,52,24,0.94) !important;
   backdrop-filter: blur(24px) !important;
 }
 nav .border-b.border-orange-100 { border-color: var(--border) !important; }
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: rgba(120,70,20,0.3) !important; border-radius: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: rgba(232,201,122,0.25) !important; border-radius: 10px; }
 
-/* ─── ANIMATIONS ─── */
+/* ════════════════════════════════════════
+   ANIMATIONS — all keyframes preserved
+   ════════════════════════════════════════ */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
@@ -282,8 +277,8 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
   100% { opacity: 0; transform: translateY(-80px) scale(0.3); }
 }
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(196,82,14,0.18); }
-  50% { box-shadow: 0 0 60px rgba(196,82,14,0.4), 0 0 120px rgba(196,82,14,0.15); }
+  0%, 100% { box-shadow: 0 0 20px rgba(196,82,14,0.2); }
+  50% { box-shadow: 0 0 60px rgba(196,82,14,0.45), 0 0 120px rgba(196,82,14,0.15); }
 }
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(20px); }
@@ -306,6 +301,13 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0%   50%; }
 }
+@keyframes damruSpin {
+  0%   { transform: rotate(-15deg) scale(1); }
+  25%  { transform: rotate(15deg) scale(1.1); }
+  50%  { transform: rotate(-15deg) scale(1); }
+  75%  { transform: rotate(15deg) scale(1.1); }
+  100% { transform: rotate(-15deg) scale(1); }
+}
 
 .animate-fade-up { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) both; }
 .animate-fade-in { animation: fadeIn 0.5s ease both; }
@@ -317,8 +319,9 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
 .animate-glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
 .animate-scale-in { animation: scaleIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
 .animate-dramatic-reveal { animation: dramaticReveal 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-damru { animation: damruSpin 0.6s ease-in-out infinite; display: inline-block; }
 
-/* Stagger delays */
+/* ─── STAGGER DELAYS ─── */
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
@@ -327,7 +330,7 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
 .delay-600 { animation-delay: 0.6s; }
 .delay-700 { animation-delay: 0.7s; }
 
-/* Sacred divider */
+/* ─── SACRED DIVIDER ─── */
 .sacred-divider {
   display: flex;
   align-items: center;
@@ -339,19 +342,19 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(120,70,20,0.2), transparent);
+  background: linear-gradient(to right, transparent, rgba(232,201,122,0.2), transparent);
 }
 
-/* Card hover glow */
+/* ─── CARD HOVER ─── */
 .card-hover {
   transition: all 0.4s cubic-bezier(0.16,1,0.3,1) !important;
 }
 .card-hover:hover {
   transform: translateY(-10px) !important;
-  box-shadow: 0 28px 80px rgba(80,40,10,0.18), 0 0 0 1px rgba(196,82,14,0.12) !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(232,201,122,0.1) !important;
 }
 
-/* Shimmer button effect */
+/* ─── SHIMMER BUTTON ─── */
 .btn-shimmer {
   position: relative;
   overflow: hidden;
@@ -360,7 +363,7 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.6s ease;
 }
@@ -368,7 +371,7 @@ nav .border-b.border-orange-100 { border-color: var(--border) !important; }
   transform: translateX(100%);
 }
 
-/* Decorative Om symbol */
+/* ─── DECORATIVE ─── */
 .om-bg {
   font-family: 'Cormorant Garamond', Georgia, serif;
   user-select: none;

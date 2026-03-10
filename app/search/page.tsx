@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { searchPandits } from '@/lib/api'
+import SacredLoader from '@/components/ui/SacredLoader'
 
 function SearchContent() {
   const router = useRouter()
@@ -14,6 +15,24 @@ function SearchContent() {
   const [ceremony, setCeremony] = useState(preSelectedService)
 
   const cities = ['Indore', 'Mumbai', 'Delhi', 'Bangalore', 'Pune']
+
+  const ceremonies = [
+    'Vivah Puja (Wedding)',
+    'Satyanarayan Katha',
+    'Griha Pravesh (Housewarming)',
+    'Namkaran (Naming Ceremony)',
+    'Mundan (First Haircut)',
+    'Janeu / Upanayana',
+    'Ganesh Puja',
+    'Navratri / Durga Puja',
+    'Shradh / Pitru Paksha',
+    'Vastu Shanti',
+    'Kuan Puja (Well Ceremony)',
+    'Bhoomi Puja (Land Blessing)',
+    'Rudrabhishek',
+    'Lakshmi Puja',
+    'Annaprashan (First Rice)',
+  ]
 
   useEffect(() => {
     fetchPandits()
@@ -81,14 +100,12 @@ function SearchContent() {
           </div>
           <div className="flex-1 w-full">
             <label className="block text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: '#B09980' }}>Ceremony</label>
-            <input
-              type="text"
-              value={ceremony}
-              onChange={e => setCeremony(e.target.value)}
-              placeholder="All Ceremonies"
+            <select value={ceremony} onChange={e => setCeremony(e.target.value)}
               className="w-full px-4 py-3 rounded-xl text-sm font-medium"
-              style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }}
-            />
+              style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: ceremony ? '#2C1810' : '#B09980' }}>
+              <option value="">All Ceremonies</option>
+              {ceremonies.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <button onClick={handleSearch}
             className="px-8 py-3 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 w-full sm:w-auto"
@@ -106,7 +123,7 @@ function SearchContent() {
 
         {/* Results */}
         {loading ? (
-          <div className="text-center py-20" style={{ color: '#B09980' }}>Searching...</div>
+          <SacredLoader message="Searching for pandits..." size="md" />
         ) : pandits.length === 0 ? (
           <div className="text-center py-16 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
             <div className="text-4xl mb-3">🔍</div>
@@ -163,7 +180,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading...</div>}>
+    <Suspense fallback={<SacredLoader message="Loading..." size="lg" />}>
       <SearchContent />
     </Suspense>
   )

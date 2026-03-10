@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getPandit, getServices, createBooking } from '@/lib/api'
 import AddressInput from '@/components/AddressInput'
+import SacredLoader from '@/components/ui/SacredLoader'
 
 const CHOGHADIYA_DAY = ['Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog']
 
@@ -236,7 +237,7 @@ const options = {
     }
   }
 
-  if (loading) return <div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading...</div>
+  if (loading) return <SacredLoader message="Preparing your booking..." size="lg" />
   if (!pandit) return <div className="min-h-screen pt-24 text-center" style={{ color: '#7A6350' }}>Pandit not found</div>
 
   const panditName = `Pt. ${pandit.user?.firstName} ${pandit.user?.lastName}`
@@ -377,11 +378,11 @@ const options = {
                         </div>
                         <div className="flex items-center gap-1">
                           <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: Math.max(1, it.qty - 1) } : it))}
-                            className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center"
+                            className="w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center"
                             style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>−</button>
-                          <span className="text-xs font-bold w-4 text-center" style={{ color: '#2C1810' }}>{item.qty}</span>
+                          <span className="text-sm font-bold w-5 text-center" style={{ color: '#2C1810' }}>{item.qty}</span>
                           <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: it.qty + 1 } : it))}
-                            className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center"
+                            className="w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center"
                             style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>+</button>
                         </div>
                         <div className="text-sm font-bold" style={{ color: '#D4651E' }}>₹{(item.estimatedPrice * item.qty).toLocaleString()}</div>
@@ -486,7 +487,7 @@ const options = {
               {(addressCity || addressState || addressPincode) && (
                 <div className="p-3 rounded-xl" style={{ background: '#E8F5EC', border: '1px solid rgba(45,143,78,0.1)' }}>
                   <p className="text-xs font-semibold mb-2" style={{ color: '#2D8F4E' }}>✓ Auto-filled from Google</p>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     {addressCity && <div><span style={{ color: '#7A6350' }}>City:</span> <strong style={{ color: '#2C1810' }}>{addressCity}</strong></div>}
                     {addressState && <div><span style={{ color: '#7A6350' }}>State:</span> <strong style={{ color: '#2C1810' }}>{addressState}</strong></div>}
                     {addressPincode && <div><span style={{ color: '#7A6350' }}>Pin:</span> <strong style={{ color: '#2C1810' }}>{addressPincode}</strong></div>}

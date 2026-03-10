@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getPandit, getServices, createBooking } from '../../../lib/api'
+import SacredLoader from '@/components/ui/SacredLoader'
 
 export default function PanditProfilePage() {
   const { id } = useParams()
@@ -36,34 +37,34 @@ export default function PanditProfilePage() {
     fetchData()
   }, [id])
 
-  if (loading) return <p className="text-center py-12 text-gray-500">Loading...</p>
+  if (loading) return <SacredLoader message="Loading pandit profile..." size="lg" />
   if (!pandit) return <p className="text-center py-12 text-gray-500">Pandit not found</p>
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
       {/* Profile Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex items-start gap-4">
-          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-4xl">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-orange-100 rounded-full flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0">
             🙏
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {pandit.user?.firstName} {pandit.user?.lastName}
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              Pt. {pandit.user?.firstName} {pandit.user?.lastName}
             </h1>
             <p className="text-gray-500">{pandit.city}, {pandit.state}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-yellow-500 text-lg">⭐</span>
-              <span className="font-bold text-lg">{pandit.rating || 'New'}</span>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-sm sm:text-base">
+              <span className="text-yellow-500">⭐</span>
+              <span className="font-bold">{pandit.rating || 'New'}</span>
               <span className="text-gray-400">({pandit.totalReviews} reviews)</span>
-              <span className="mx-2 text-gray-300">|</span>
-              <span className="text-gray-600">{pandit.experienceYears} years experience</span>
+              <span className="text-gray-300 hidden sm:inline">|</span>
+              <span className="text-gray-600">{pandit.experienceYears} yrs exp</span>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-orange-600 mb-3">₹{pandit.priceMin} - ₹{pandit.priceMax}</p>
+          <div className="sm:text-right">
+            <p className="text-xl sm:text-2xl font-bold text-orange-600 mb-3">₹{pandit.priceMin} – ₹{pandit.priceMax}</p>
             <button
-              className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition"
+              className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition"
               onClick={() => {
                 const token = localStorage.getItem('token')
                 if (!token) {

@@ -95,7 +95,7 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'rgba(44,24,16,0.3)' }} onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-0 right-0 w-72 h-full shadow-2xl animate-slide-in" style={{ background: '#FFFAF5' }}>
+          <div className="absolute top-0 right-0 h-full shadow-2xl animate-slide-in" style={{ background: '#FFFAF5', width: 'min(288px, 85vw)' }}>
             <div className="p-5">
               <button onClick={() => setMobileOpen(false)} className="float-right w-10 h-10 flex items-center justify-center rounded-lg text-xl" style={{ color: '#B09980' }}>✕</button>
               <div className="clear-both pt-4">
