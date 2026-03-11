@@ -185,7 +185,7 @@ const options = {
           email: currentUser?.email || '',
           contact: currentUser?.phone || ''
         },
-        theme: { color: '#D4651E' },
+        theme: { color: 'var(--accent)' },
         modal: { ondismiss: () => setPaymentLoading(false) },
         handler: async (response: any) => {
           try {
@@ -238,7 +238,11 @@ const options = {
   }
 
   if (loading) return <SacredLoader message="Preparing your booking..." size="lg" />
-  if (!pandit) return <div className="min-h-screen pt-24 text-center" style={{ color: '#7A6350' }}>Pandit not found</div>
+  if (!pandit) return (
+    <div className="min-h-screen pt-24 text-center" style={{ color: 'var(--text-on-light2)' }}>
+      Pandit not found
+    </div>
+  )
 
   const panditName = `Pt. ${pandit.user?.firstName} ${pandit.user?.lastName}`
   const selectedServiceData = services.find((s: any) => s.id === selectedService)
@@ -252,9 +256,13 @@ const options = {
     : ['Ceremony', 'Samagri', 'Date & Time', 'Address', 'Confirm', 'Done']
 
   return (
-    <div className="min-h-screen pt-20 pb-12 px-4" style={{ background: '#FFFAF5' }}>
+    <div className="min-h-screen pt-20 pb-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => router.back()} className="text-sm font-semibold mb-6 hover:underline" style={{ color: '#D4651E' }}>← Back</button>
+        <button onClick={() => router.back()}
+          className="text-sm font-semibold mb-6 hover:underline"
+          style={{ color: 'var(--accent)', fontFamily: 'Outfit, sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>
+          ← Back
+        </button>
 
         {step < 5 && (
           <div className="flex justify-center gap-2 sm:gap-6 mb-8">
@@ -265,10 +273,17 @@ const options = {
               return (
                 <div key={i} className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-                    style={{ background: isComplete ? '#2D8F4E' : isCurrent ? '#D4651E' : 'rgba(180,130,80,0.1)', color: isComplete || isCurrent ? '#fff' : '#B09980' }}>
+                    style={{
+                      background: isComplete ? 'var(--green)' : isCurrent ? 'var(--accent)' : 'rgba(44,26,8,0.08)',
+                      color: isComplete || isCurrent ? '#fff' : 'var(--text-on-light3)',
+                      fontFamily: 'Outfit, sans-serif',
+                    }}>
                     {isComplete ? '✓' : i + 1}
                   </div>
-                  <span className="text-xs hidden sm:block font-medium" style={{ color: isCurrent ? '#D4651E' : '#B09980' }}>{label}</span>
+                  <span className="text-xs hidden sm:block font-medium"
+                    style={{ color: isCurrent ? 'var(--accent)' : 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>
+                    {label}
+                  </span>
                 </div>
               )
             })}
@@ -276,75 +291,106 @@ const options = {
         )}
 
         {step < 5 && (
-          <div className="p-4 rounded-2xl mb-6 flex items-center gap-4" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ background: 'linear-gradient(135deg, #D4651E, #B8860B)' }}>
+          <div className="card-light p-4 mb-6 flex items-center gap-4" style={{ boxShadow: 'var(--shadow)' }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, var(--accent), var(--gold))' }}>
               {pandit.user?.firstName?.[0]}{pandit.user?.lastName?.[0]}
             </div>
             <div>
-              <h3 className="font-bold" style={{ color: '#2C1810' }}>{panditName}</h3>
-              <p className="text-sm" style={{ color: '#7A6350' }}>{pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}</p>
+              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, color: 'var(--text-on-light)', fontSize: '1rem' }}>
+                {panditName}
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>
+                {pandit.city} · {pandit.experienceYears} yrs · {pandit.rating > 0 ? pandit.rating.toFixed(1) + '★' : 'New'}
+              </p>
             </div>
-            <div className="ml-auto text-right">
-              <div className="font-bold" style={{ color: '#D4651E' }}>
+            <div className="ml-auto text-right flex-shrink-0">
+              <div style={{ fontWeight: 700, color: 'var(--accent)', fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem' }}>
                 {preSelectedService ? preSelectedService : `₹${pandit.priceMin?.toLocaleString()} - ₹${pandit.priceMax?.toLocaleString()}`}
               </div>
-              <div className="text-xs" style={{ color: '#B09980' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>
                 {preSelectedPrice ? `₹${preSelectedPrice.toLocaleString()}` : 'per ceremony'}
               </div>
             </div>
           </div>
         )}
 
-        {error && <div className="p-3 rounded-xl text-sm mb-4" style={{ background: '#FEE8E8', color: '#C53030' }}>{error}</div>}
+        {error && (
+          <div className="p-3 rounded-lg text-sm mb-4"
+            style={{ background: 'var(--red-s)', color: 'var(--red)', border: '1px solid rgba(184,50,50,0.2)', borderRadius: 'var(--r-sm)', fontFamily: 'Outfit, sans-serif' }}>
+            {error}
+          </div>
+        )}
 
         {/* ─── STEP 1: CEREMONY ─── */}
         {step === 1 && !preSelectedService && (
-          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Ceremony</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Choose the puja or ceremony you need</p>
+          <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.35rem', color: 'var(--text-on-light)', marginBottom: 4 }}>
+              Select Ceremony
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              Choose the puja or ceremony you need
+            </p>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {services.map((s: any) => (
-                <label key={s.id} className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
-                  style={{ border: `2px solid ${selectedService === s.id ? '#D4651E' : 'rgba(180,130,80,0.08)'}`, background: selectedService === s.id ? 'rgba(212,101,30,0.04)' : '#FFFFFF' }}>
+                <label key={s.id} className="flex items-center gap-4 p-4 cursor-pointer transition-all"
+                  style={{
+                    border: `2px solid ${selectedService === s.id ? 'var(--accent)' : 'var(--card-border)'}`,
+                    background: selectedService === s.id ? 'var(--accent-bg)' : 'transparent',
+                    borderRadius: 'var(--r-sm)',
+                  }}>
                   <input type="radio" name="service" value={s.id} checked={selectedService === s.id}
-                    onChange={() => setSelectedService(s.id)} style={{ accentColor: '#D4651E' }} />
+                    onChange={() => setSelectedService(s.id)} style={{ accentColor: 'var(--accent)' }} />
                   <div className="flex-1">
-                    <div className="font-semibold" style={{ color: '#2C1810' }}>{s.name}</div>
-                    {s.nameHindi && <div className="text-xs" style={{ color: '#B09980' }}>{s.nameHindi}</div>}
+                    <div style={{ fontWeight: 600, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem' }}>{s.name}</div>
+                    {s.nameHindi && <div style={{ fontSize: '0.75rem', color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>{s.nameHindi}</div>}
                   </div>
-                  <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: 'rgba(212,101,30,0.06)', color: '#D4651E' }}>{s.category}</span>
+                  <span className="badge" style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
+                    {s.category}
+                  </span>
                 </label>
               ))}
             </div>
             <button onClick={() => selectedService && setStep(1.5)} disabled={!selectedService}
-              className="w-full mt-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+              className="btn-primary btn-shimmer w-full mt-6">
+              Continue →
+            </button>
           </div>
         )}
 
         {/* ─── STEP 1.5: SAMAGRI ─── */}
         {step === 1.5 && (
-          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Samagri Kit</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Would you like us to arrange the puja items?</p>
+          <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.35rem', color: 'var(--text-on-light)', marginBottom: 4 }}>
+              Samagri Kit
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              Would you like us to arrange the puja items?
+            </p>
 
             {wantsSamagri === null && (
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div onClick={() => setWantsSamagri(false)}
-                  className="p-5 rounded-2xl text-center cursor-pointer transition-all hover:opacity-90"
-                  style={{ border: '2px solid rgba(180,130,80,0.15)', background: '#FFF5EC' }}>
+                  className="p-5 text-center cursor-pointer transition-all hover:opacity-90"
+                  style={{ border: '2px solid var(--card-border)', background: 'var(--accent-bg)', borderRadius: 'var(--r)' }}>
                   <div className="text-4xl mb-3">🙏</div>
-                  <div className="font-bold text-sm mb-1" style={{ color: '#2C1810' }}>Pandit Only</div>
-                  <div className="text-xs" style={{ color: '#7A6350' }}>I'll arrange samagri myself</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.875rem', marginBottom: 4, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>Pandit Only</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>I'll arrange samagri myself</div>
                 </div>
                 <div onClick={() => { setWantsSamagri(true); fetchSamagri(preSelectedService || selectedServiceData?.name || '') }}
-                  className="p-5 rounded-2xl text-center cursor-pointer transition-all hover:opacity-90 relative"
-                  style={{ border: '2px solid #D4651E', background: 'rgba(212,101,30,0.04)' }}>
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-1 rounded-full text-white" style={{ background: '#D4651E' }}>RECOMMENDED</div>
+                  className="p-5 text-center cursor-pointer transition-all hover:opacity-90 relative"
+                  style={{ border: '2px solid var(--accent)', background: 'var(--accent-bg)', borderRadius: 'var(--r)' }}>
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-1 rounded-full text-white"
+                    style={{ background: 'var(--accent)', fontFamily: 'Outfit, sans-serif' }}>
+                    RECOMMENDED
+                  </div>
                   <div className="text-4xl mb-3">🛒</div>
-                  <div className="font-bold text-sm mb-1" style={{ color: '#2C1810' }}>Pandit + Samagri</div>
-                  <div className="text-xs" style={{ color: '#7A6350' }}>We deliver everything to you</div>
-                  <div className="mt-2 text-xs font-bold px-2 py-1 rounded-full" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>🎁 Free delivery + 5% off</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.875rem', marginBottom: 4, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>Pandit + Samagri</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>We deliver everything to you</div>
+                  <div className="mt-2 text-xs font-bold px-2 py-1 rounded-full"
+                    style={{ background: 'var(--green-s)', color: 'var(--green)', fontFamily: 'Outfit, sans-serif' }}>
+                    🎁 Free delivery + 5% off
+                  </div>
                 </div>
               </div>
             )}
@@ -352,48 +398,67 @@ const options = {
             {wantsSamagri === true && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-bold" style={{ color: '#2C1810' }}>AI-Generated Samagri List</span>
-                  <button onClick={() => setWantsSamagri(null)} className="text-xs" style={{ color: '#B09980' }}>Change</button>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>
+                    AI-Generated Samagri List
+                  </span>
+                  <button onClick={() => setWantsSamagri(null)}
+                    style={{ fontSize: '0.75rem', color: 'var(--text-on-light2)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                    Change
+                  </button>
                 </div>
-                <div className="p-3 rounded-xl mb-4 text-xs font-semibold" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>
+                <div className="p-3 rounded-lg mb-4 text-xs font-semibold"
+                  style={{ background: 'var(--green-s)', color: 'var(--green)', borderRadius: 'var(--r-sm)', fontFamily: 'Outfit, sans-serif' }}>
                   🎁 Free delivery + 5% off pandit fee applied!
                 </div>
                 {samagriLoading && (
-                  <div className="text-center py-8" style={{ color: '#B09980' }}>
+                  <div className="text-center py-8" style={{ color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>
                     <div className="text-2xl mb-2">🕉️</div>
                     <div className="text-sm">AI is generating your samagri list...</div>
                   </div>
                 )}
-                {samagriError && <div className="text-sm p-3 rounded-xl mb-3" style={{ background: '#FEE8E8', color: '#C53030' }}>{samagriError}</div>}
+                {samagriError && (
+                  <div className="text-sm p-3 mb-3"
+                    style={{ background: 'var(--red-s)', color: 'var(--red)', borderRadius: 'var(--r-sm)', fontFamily: 'Outfit, sans-serif' }}>
+                    {samagriError}
+                  </div>
+                )}
                 {!samagriLoading && samagriItems.length > 0 && (
                   <div className="space-y-2 max-h-72 overflow-y-auto mb-4">
                     {samagriItems.map((item, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-xl transition-all"
-                        style={{ border: `1.5px solid ${item.selected ? 'rgba(212,101,30,0.2)' : 'rgba(180,130,80,0.08)'}`, background: item.selected ? 'rgba(212,101,30,0.02)' : '#fafafa', opacity: item.selected ? 1 : 0.5 }}>
-                        <input type="checkbox" checked={item.selected} style={{ accentColor: '#D4651E' }}
+                      <div key={i} className="flex items-center gap-3 p-3 transition-all"
+                        style={{
+                          border: `1.5px solid ${item.selected ? 'var(--accent-border)' : 'var(--card-border)'}`,
+                          background: item.selected ? 'var(--accent-bg)' : 'transparent',
+                          borderRadius: 'var(--r-sm)',
+                          opacity: item.selected ? 1 : 0.5,
+                        }}>
+                        <input type="checkbox" checked={item.selected} style={{ accentColor: 'var(--accent)' }}
                           onChange={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, selected: !it.selected } : it))} />
                         <div className="flex-1">
-                          <div className="text-sm font-semibold" style={{ color: '#2C1810' }}>{item.name}</div>
-                          <div className="text-xs" style={{ color: '#B09980' }}>{item.nameHindi} · {item.quantity} {item.unit}</div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>{item.name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>{item.nameHindi} · {item.quantity} {item.unit}</div>
                         </div>
                         <div className="flex items-center gap-1">
                           <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: Math.max(1, it.qty - 1) } : it))}
                             className="w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center"
-                            style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>−</button>
-                          <span className="text-sm font-bold w-5 text-center" style={{ color: '#2C1810' }}>{item.qty}</span>
+                            style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: 'none', cursor: 'pointer' }}>−</button>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 700, width: 20, textAlign: 'center', color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>{item.qty}</span>
                           <button onClick={() => setSamagriItems(prev => prev.map((it, idx) => idx === i ? { ...it, qty: it.qty + 1 } : it))}
                             className="w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center"
-                            style={{ background: 'rgba(212,101,30,0.1)', color: '#D4651E' }}>+</button>
+                            style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: 'none', cursor: 'pointer' }}>+</button>
                         </div>
-                        <div className="text-sm font-bold" style={{ color: '#D4651E' }}>₹{(item.estimatedPrice * item.qty).toLocaleString()}</div>
+                        <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent)', fontFamily: 'Cormorant Garamond, serif' }}>
+                          ₹{(item.estimatedPrice * item.qty).toLocaleString()}
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
                 {!samagriLoading && samagriItems.length > 0 && (
-                  <div className="p-3 rounded-xl flex justify-between items-center" style={{ background: '#FFF5EC' }}>
-                    <span className="text-sm font-bold" style={{ color: '#4A3728' }}>Samagri Total</span>
-                    <span className="font-extrabold" style={{ color: '#D4651E' }}>₹{samagriTotal.toLocaleString()}</span>
+                  <div className="p-3 flex justify-between items-center"
+                    style={{ background: 'var(--accent-bg)', borderRadius: 'var(--r-sm)', border: '1px solid var(--accent-border)' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>Samagri Total</span>
+                    <span className="price-serif" style={{ fontSize: '1rem' }}>₹{samagriTotal.toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -401,57 +466,73 @@ const options = {
 
             {wantsSamagri === false && (
               <div>
-                <div className="p-4 rounded-xl mb-4 text-center" style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)' }}>
+                <div className="p-4 text-center mb-4"
+                  style={{ background: 'var(--accent-bg)', border: '1.5px solid var(--accent-border)', borderRadius: 'var(--r)' }}>
                   <div className="text-2xl mb-1">🙏</div>
-                  <div className="text-sm font-semibold" style={{ color: '#4A3728' }}>Pandit Only selected</div>
-                  <div className="text-xs mt-1" style={{ color: '#B09980' }}>You'll arrange samagri yourself</div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>Pandit Only selected</div>
+                  <div style={{ fontSize: '0.75rem', marginTop: 4, color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>You'll arrange samagri yourself</div>
                 </div>
-                <button onClick={() => setWantsSamagri(null)} className="w-full text-sm py-2 rounded-xl" style={{ border: '1px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Change selection</button>
+                <button onClick={() => setWantsSamagri(null)}
+                  className="w-full text-sm py-2"
+                  style={{ border: '1px solid var(--card-border)', color: 'var(--text-on-light2)', background: 'transparent', borderRadius: 'var(--r-sm)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                  ← Change selection
+                </button>
               </div>
             )}
 
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(preSelectedService ? 1.5 : 1)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(preSelectedService ? 1.5 : 1)} className="btn-outline flex-1">← Back</button>
               <button onClick={() => wantsSamagri !== null && setStep(2)} disabled={wantsSamagri === null}
-                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+                className="btn-primary flex-1">
+                Continue →
+              </button>
             </div>
           </div>
         )}
 
         {/* ─── STEP 2: DATE & CHOGHADIYA ─── */}
         {step === 2 && (
-          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Select Date & Muhurat</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Pick a date and we&apos;ll show auspicious timings</p>
+          <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.35rem', color: 'var(--text-on-light)', marginBottom: 4 }}>
+              Select Date &amp; Muhurat
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              Pick a date and we&apos;ll show auspicious timings
+            </p>
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#4A3728' }}>Ceremony Date</label>
+              <label className="label-field block mb-1.5">Ceremony Date</label>
               <input type="date" value={selectedDate} min={today} onChange={e => setSelectedDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-base" style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+                className="w-full" style={{ padding: '11px 16px' }} />
             </div>
             {selectedDate && (
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-lg">🕉️</span>
-                  <span className="font-bold" style={{ color: '#2C1810' }}>Din ka Choghadiya</span>
-                  <span className="ml-auto text-xs px-3 py-1 rounded-full font-semibold" style={{ background: 'rgba(212,101,30,0.08)', color: '#D4651E' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem' }}>Din ka Choghadiya</span>
+                  <span className="ml-auto badge"
+                    style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
                     {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </span>
                 </div>
                 <div className="space-y-1.5">
                   {dayPeriods.map((c, i) => (
-                    <label key={i} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+                    <label key={i} className="flex items-center gap-3 p-3 cursor-pointer transition-all"
                       style={{
-                        border: `2px solid ${selectedTime === c.startTime ? '#D4651E' : c.type === 'bad' ? 'rgba(197,48,48,0.08)' : 'rgba(180,130,80,0.06)'}`,
-                        background: selectedTime === c.startTime ? 'rgba(212,101,30,0.04)' : c.type === 'bad' ? 'rgba(197,48,48,0.02)' : '#fff',
+                        border: `2px solid ${selectedTime === c.startTime ? 'var(--accent)' : c.type === 'bad' ? 'rgba(184,50,50,0.12)' : 'var(--card-border)'}`,
+                        background: selectedTime === c.startTime ? 'var(--accent-bg)' : c.type === 'bad' ? 'rgba(184,50,50,0.03)' : 'transparent',
+                        borderRadius: 'var(--r-sm)',
                         opacity: c.type === 'bad' ? 0.5 : 1,
                       }}>
                       <input type="radio" name="time" value={c.startTime} checked={selectedTime === c.startTime}
-                        onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name) }} style={{ accentColor: '#D4651E' }} />
+                        onChange={() => { setSelectedTime(c.startTime); setSelectedChoghadiya(c.name) }}
+                        style={{ accentColor: 'var(--accent)' }} />
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
-                      <span className="font-semibold text-sm flex-1" style={{ color: '#2C1810' }}>{c.startTime} — {c.endTime}</span>
-                      <span className="text-xs" style={{ color: c.color }}>{c.name}</span>
+                      <span style={{ fontWeight: 600, fontSize: '0.875rem', flex: 1, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>
+                        {c.startTime} — {c.endTime}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: c.color, fontFamily: 'Outfit, sans-serif' }}>{c.name}</span>
                       {(c.type === 'best' || c.type === 'good') && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: '#E8F5EC', color: '#2D8F4E' }}>
+                        <span className="badge" style={{ background: 'var(--green-s)', color: 'var(--green)', fontSize: '0.65rem' }}>
                           {c.type === 'best' ? 'BEST' : 'GOOD'}
                         </span>
                       )}
@@ -459,66 +540,85 @@ const options = {
                   ))}
                 </div>
                 {goodPeriods.length > 0 && !selectedTime && (
-                  <div className="mt-3 p-3 rounded-xl text-sm" style={{ background: '#E8F5EC', color: '#2D8F4E', border: '1px solid rgba(45,143,78,0.1)' }}>
+                  <div className="mt-3 p-3 text-sm"
+                    style={{ background: 'var(--green-s)', color: 'var(--green)', borderRadius: 'var(--r-sm)', border: '1px solid rgba(46,125,82,0.2)', fontFamily: 'Outfit, sans-serif' }}>
                     💡 <strong>Suggestion:</strong> {goodPeriods[0].name} ({goodPeriods[0].startTime}) is the most auspicious time.
                   </div>
                 )}
               </div>
             )}
             <div className="flex gap-3 mt-4">
-              <button onClick={() => setStep(1.5)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(1.5)} className="btn-outline flex-1">← Back</button>
               <button onClick={() => selectedDate && selectedTime && setStep(3)} disabled={!selectedDate || !selectedTime}
-                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+                className="btn-primary flex-1">
+                Continue →
+              </button>
             </div>
           </div>
         )}
 
         {/* ─── STEP 3: ADDRESS ─── */}
         {step === 3 && (
-          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Ceremony Location</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Where should the pandit come?</p>
+          <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.35rem', color: 'var(--text-on-light)', marginBottom: 4 }}>
+              Ceremony Location
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              Where should the pandit come?
+            </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Address *</label>
+                <label className="label-field block mb-1.5">Address *</label>
                 <AddressInput value={address} onChange={setAddress} onAddressSelect={handleAddressSelect} placeholder="Start typing your address..." />
-                <p className="text-xs mt-1.5" style={{ color: '#B09980' }}>📍 Google will suggest addresses as you type</p>
+                <p style={{ fontSize: '0.75rem', marginTop: 6, color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>
+                  📍 Google will suggest addresses as you type
+                </p>
               </div>
               {(addressCity || addressState || addressPincode) && (
-                <div className="p-3 rounded-xl" style={{ background: '#E8F5EC', border: '1px solid rgba(45,143,78,0.1)' }}>
-                  <p className="text-xs font-semibold mb-2" style={{ color: '#2D8F4E' }}>✓ Auto-filled from Google</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    {addressCity && <div><span style={{ color: '#7A6350' }}>City:</span> <strong style={{ color: '#2C1810' }}>{addressCity}</strong></div>}
-                    {addressState && <div><span style={{ color: '#7A6350' }}>State:</span> <strong style={{ color: '#2C1810' }}>{addressState}</strong></div>}
-                    {addressPincode && <div><span style={{ color: '#7A6350' }}>Pin:</span> <strong style={{ color: '#2C1810' }}>{addressPincode}</strong></div>}
+                <div className="p-3"
+                  style={{ background: 'var(--green-s)', borderRadius: 'var(--r-sm)', border: '1px solid rgba(46,125,82,0.2)' }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: 8, color: 'var(--green)', fontFamily: 'Outfit, sans-serif' }}>✓ Auto-filled from Google</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    {addressCity && <div><span style={{ color: 'var(--text-on-light2)' }}>City:</span> <strong style={{ color: 'var(--text-on-light)' }}>{addressCity}</strong></div>}
+                    {addressState && <div><span style={{ color: 'var(--text-on-light2)' }}>State:</span> <strong style={{ color: 'var(--text-on-light)' }}>{addressState}</strong></div>}
+                    {addressPincode && <div><span style={{ color: 'var(--text-on-light2)' }}>Pin:</span> <strong style={{ color: 'var(--text-on-light)' }}>{addressPincode}</strong></div>}
                   </div>
                 </div>
               )}
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Special Instructions (optional)</label>
+                <label className="label-field block mb-1.5">Special Instructions (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
                   placeholder="Any special requirements for the pandit..." rows={3}
-                  className="w-full px-4 py-3 rounded-xl text-sm resize-none"
-                  style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+                  className="w-full" style={{ padding: '11px 16px', resize: 'none' }} />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(2)} className="btn-outline flex-1">← Back</button>
               <button onClick={() => address && setStep(4)} disabled={!address}
-                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>Continue →</button>
+                className="btn-primary flex-1">
+                Continue →
+              </button>
             </div>
           </div>
         )}
 
         {/* ─── STEP 4: CONFIRM ─── */}
         {step === 4 && (
-          <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: '#2C1810' }}>Review & Confirm</h2>
-            <p className="text-sm mb-5" style={{ color: '#7A6350' }}>Everything looks good? Pay to confirm your booking.</p>
+          <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.35rem', color: 'var(--text-on-light)', marginBottom: 4 }}>
+              Review &amp; Confirm
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              Everything looks good? Pay to confirm your booking.
+            </p>
 
-            <div className="p-4 rounded-xl mb-5" style={{ background: '#FFF5EC' }}>
-              <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>Booking Summary</h4>
-              <div className="space-y-2 text-sm">
+            {/* Booking Summary */}
+            <div className="p-4 mb-5"
+              style={{ background: 'var(--accent-bg)', borderRadius: 'var(--r-sm)', border: '1px solid var(--accent-border)' }}>
+              <h4 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 12, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>
+                Booking Summary
+              </h4>
+              <div className="space-y-2 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {[
                   ['Ceremony', selectedServiceData?.name || preSelectedService],
                   ['Pandit', panditName],
@@ -530,83 +630,98 @@ const options = {
                   ...(wantsSamagri ? [['Samagri', '✓ Included (free delivery)']] : []),
                 ].map(([label, value], i) => (
                   <div key={i} className="flex justify-between">
-                    <span style={{ color: '#7A6350' }}>{label}</span>
-                    <span className="font-semibold text-right max-w-[200px]" style={{ color: label === 'Muhurat' ? CHOGHADIYA_INFO[selectedChoghadiya]?.color : label === 'Samagri' ? '#2D8F4E' : '#2C1810' }}>{value}</span>
+                    <span style={{ color: 'var(--text-on-light2)' }}>{label}</span>
+                    <span style={{
+                      fontWeight: 600,
+                      textAlign: 'right',
+                      maxWidth: 200,
+                      color: label === 'Muhurat' ? CHOGHADIYA_INFO[selectedChoghadiya]?.color : label === 'Samagri' ? 'var(--green)' : 'var(--text-on-light)',
+                    }}>{value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Price Section */}
-            <div className="p-4 rounded-xl mb-5" style={{ background: '#FFFFFF', border: '2px solid rgba(212,101,30,0.15)' }}>
-              <h4 className="text-sm font-bold mb-3" style={{ color: '#4A3728' }}>💰 Price Breakdown</h4>
-              <div className="space-y-2 text-sm mb-4">
+            {/* Price Breakdown */}
+            <div className="p-4 mb-5"
+              style={{ background: 'transparent', border: '2px solid var(--accent-border)', borderRadius: 'var(--r-sm)' }}>
+              <h4 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 12, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>
+                💰 Price Breakdown
+              </h4>
+              <div className="space-y-2 text-sm mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 <div className="flex justify-between">
-                  <span style={{ color: '#7A6350' }}>Pandit Fee</span>
-                  <span className="font-semibold" style={{ color: '#2C1810' }}>₹{agreedPrice.toLocaleString()}</span>
+                  <span style={{ color: 'var(--text-on-light2)' }}>Pandit Fee</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-on-light)' }}>₹{agreedPrice.toLocaleString()}</span>
                 </div>
                 {wantsSamagri && (
                   <>
                     <div className="flex justify-between">
-                      <span style={{ color: '#7A6350' }}>Samagri Kit</span>
-                      <span className="font-semibold" style={{ color: '#2C1810' }}>₹{samagriTotal.toLocaleString()}</span>
+                      <span style={{ color: 'var(--text-on-light2)' }}>Samagri Kit</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-on-light)' }}>₹{samagriTotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span style={{ color: '#2D8F4E' }}>5% Discount on Pandit Fee</span>
-                      <span className="font-semibold" style={{ color: '#2D8F4E' }}>- ₹{discount.toLocaleString()}</span>
+                      <span style={{ color: 'var(--green)' }}>5% Discount on Pandit Fee</span>
+                      <span style={{ fontWeight: 600, color: 'var(--green)' }}>- ₹{discount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span style={{ color: '#2D8F4E' }}>Delivery</span>
-                      <span className="font-semibold" style={{ color: '#2D8F4E' }}>FREE</span>
+                      <span style={{ color: 'var(--green)' }}>Delivery</span>
+                      <span style={{ fontWeight: 600, color: 'var(--green)' }}>FREE</span>
                     </div>
                   </>
                 )}
               </div>
               <div className="flex gap-3">
-                <div className="flex-1 p-3 rounded-xl text-center cursor-pointer transition-all hover:opacity-80"
-                  style={{ background: negotiating ? 'rgba(212,101,30,0.1)' : 'rgba(212,101,30,0.04)', border: `1.5px solid ${negotiating ? '#D4651E' : 'rgba(212,101,30,0.15)'}` }}
+                <div className="flex-1 p-3 text-center cursor-pointer transition-all hover:opacity-80"
+                  style={{
+                    background: negotiating ? 'var(--accent-bg)' : 'transparent',
+                    border: `1.5px solid ${negotiating ? 'var(--accent)' : 'var(--accent-border)'}`,
+                    borderRadius: 'var(--r-sm)',
+                  }}
                   onClick={() => setNegotiating(!negotiating)}>
                   <div className="text-xl mb-1">💬</div>
-                  <div className="text-xs font-bold" style={{ color: '#D4651E' }}>Negotiate</div>
-                  <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Enter your offer</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', fontFamily: 'Outfit, sans-serif' }}>Negotiate</div>
+                  <div style={{ fontSize: '0.7rem', marginTop: 2, color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>Enter your offer</div>
                 </div>
                 <a href={`tel:${pandit.user?.phone || ''}`}
-                  className="flex-1 p-3 rounded-xl text-center transition-all hover:opacity-80 no-underline"
-                  style={{ background: 'rgba(45,143,78,0.04)', border: '1.5px solid rgba(45,143,78,0.15)' }}>
+                  className="flex-1 p-3 text-center transition-all hover:opacity-80 no-underline"
+                  style={{ background: 'var(--green-s)', border: '1.5px solid rgba(46,125,82,0.25)', borderRadius: 'var(--r-sm)' }}>
                   <div className="text-xl mb-1">📞</div>
-                  <div className="text-xs font-bold" style={{ color: '#2D8F4E' }}>Call Pandit</div>
-                  <div className="text-xs mt-0.5" style={{ color: '#B09980' }}>Discuss directly</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--green)', fontFamily: 'Outfit, sans-serif' }}>Call Pandit</div>
+                  <div style={{ fontSize: '0.7rem', marginTop: 2, color: 'var(--text-on-light3)', fontFamily: 'Outfit, sans-serif' }}>Discuss directly</div>
                 </a>
               </div>
               {negotiating && (
-                <div className="flex items-center gap-2 p-3 rounded-xl mt-3" style={{ background: '#FFF5EC', border: '1.5px solid #D4651E' }}>
-                  <span className="text-sm font-semibold" style={{ color: '#4A3728' }}>Your offer: ₹</span>
+                <div className="flex items-center gap-2 p-3 mt-3"
+                  style={{ background: 'var(--input-bg)', border: '1.5px solid var(--accent)', borderRadius: 'var(--r-sm)' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-on-light)', fontFamily: 'Outfit, sans-serif' }}>Your offer: ₹</span>
                   <input type="number" autoFocus
                     defaultValue={agreedPrice}
                     placeholder={`${pandit.priceMin} - ${pandit.priceMax}`}
                     onChange={e => setAgreedPrice(parseInt(e.target.value) || 0)}
                     className="flex-1 bg-transparent text-lg font-bold text-center outline-none"
-                    style={{ color: '#D4651E' }} />
+                    style={{ color: 'var(--accent)', fontFamily: 'Cormorant Garamond, serif', border: 'none', background: 'transparent' }} />
                   <button onClick={() => setNegotiating(false)}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg text-white"
-                    style={{ background: '#D4651E' }}>Done</button>
+                    className="btn-primary"
+                    style={{ padding: '6px 14px', fontSize: '0.78rem' }}>Done</button>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-between items-center p-4 rounded-xl mb-5" style={{ background: 'rgba(212,101,30,0.04)', border: '1px solid rgba(212,101,30,0.1)' }}>
-              <span className="font-bold" style={{ color: '#2C1810' }}>Total Payable</span>
+            {/* Total */}
+            <div className="flex justify-between items-center p-4 mb-5"
+              style={{ background: 'var(--card-dark)', borderRadius: 'var(--r-sm)' }}>
+              <span style={{ fontWeight: 700, color: 'var(--text-on-dark)', fontFamily: 'Outfit, sans-serif' }}>Total Payable</span>
               <div className="text-right">
                 {wantsSamagri && (
-                  <div className="text-xs line-through" style={{ color: '#B09980' }}>
+                  <div style={{ fontSize: '0.75rem', textDecoration: 'line-through', color: 'var(--text-on-dark3)', fontFamily: 'Outfit, sans-serif' }}>
                     ₹{(agreedPrice + samagriTotal).toLocaleString()}
                   </div>
                 )}
-                <div className="text-2xl font-extrabold" style={{ color: '#D4651E' }}>
+                <div className="price-serif" style={{ fontSize: '1.6rem' }}>
                   ₹{(agreedPrice - discount + (wantsSamagri ? samagriTotal : 0)).toLocaleString()}
                 </div>
                 {wantsSamagri && (
-                  <div className="text-xs font-semibold" style={{ color: '#2D8F4E' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-on-dark2)', fontFamily: 'Outfit, sans-serif' }}>
                     You save ₹{discount.toLocaleString()}!
                   </div>
                 )}
@@ -614,10 +729,9 @@ const options = {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>← Back</button>
+              <button onClick={() => setStep(3)} className="btn-outline flex-1">← Back</button>
               <button onClick={handlePayment} disabled={!agreedPrice || paymentLoading}
-                className="flex-1 py-3 rounded-xl font-bold text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
+                className="btn-primary btn-shimmer flex-1">
                 {paymentLoading ? 'Processing...' : '💳 Pay & Confirm'}
               </button>
             </div>
@@ -626,14 +740,17 @@ const options = {
 
         {/* ─── STEP 5: CONFIRMATION ─── */}
         {step === 5 && (
-          <div className="p-8 rounded-2xl text-center" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)' }}>
+          <div className="card-light p-8 text-center" style={{ boxShadow: 'var(--shadow-lg)' }}>
             <div className="text-5xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: '#2C1810' }}>Booking Confirmed!</h2>
-            <p className="text-sm mb-6" style={{ color: '#7A6350' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.7rem', color: 'var(--text-on-light)', marginBottom: 8 }}>
+              Booking Confirmed!
+            </h2>
+            <p style={{ fontSize: '0.875rem', marginBottom: 24, color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>
               {wantsSamagri ? 'Your ceremony is booked and samagri will be delivered before the ceremony.' : 'Your ceremony has been booked. The pandit will be notified.'}
             </p>
-            <div className="p-4 rounded-xl mb-6 text-left" style={{ background: '#FFF5EC' }}>
-              <div className="space-y-2 text-sm">
+            <div className="p-4 mb-6 text-left"
+              style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', borderRadius: 'var(--r-sm)' }}>
+              <div className="space-y-2 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {[
                   ['Ceremony', selectedServiceData?.name || preSelectedService],
                   ['Pandit', panditName],
@@ -645,15 +762,22 @@ const options = {
                   ['Amount Paid', `₹${(agreedPrice - discount + (wantsSamagri ? samagriTotal : 0)).toLocaleString()}`],
                 ].map(([label, value], i, arr) => (
                   <div key={i} className="flex justify-between">
-                    <span style={{ color: '#7A6350' }}>{label}</span>
-                    <span className="font-semibold" style={{ color: i === arr.length - 1 ? '#D4651E' : label === 'Samagri' ? '#2D8F4E' : '#2C1810' }}>{value}</span>
+                    <span style={{ color: 'var(--text-on-light2)' }}>{label}</span>
+                    <span style={{
+                      fontWeight: 600,
+                      color: i === arr.length - 1 ? 'var(--accent)' : label === 'Samagri' ? 'var(--green)' : 'var(--text-on-light)',
+                    }}>{value}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => router.push('/dashboard')} className="flex-1 py-3 rounded-xl font-bold text-white" style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)' }}>View My Bookings</button>
-              <button onClick={() => router.push('/')} className="flex-1 py-3 rounded-xl font-semibold" style={{ border: '1.5px solid rgba(180,130,80,0.15)', color: '#7A6350' }}>Back to Home</button>
+              <button onClick={() => router.push('/dashboard')} className="btn-primary btn-shimmer flex-1">
+                View My Bookings
+              </button>
+              <button onClick={() => router.push('/')} className="btn-outline flex-1">
+                Back to Home
+              </button>
             </div>
           </div>
         )}
@@ -664,7 +788,7 @@ const options = {
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen pt-24 text-center" style={{ color: '#B09980' }}>Loading...</div>}>
+    <Suspense fallback={<SacredLoader message="Loading..." size="lg" />}>
       <BookingContent />
     </Suspense>
   )

@@ -7,9 +7,7 @@ import AarambhLogo from '@/components/AarambhLogo'
 import ShlokGreeting from '@/components/ui/ShlokGreeting'
 
 declare global {
-  interface Window {
-    google?: any
-  }
+  interface Window { google?: any }
 }
 
 export default function LoginPage() {
@@ -22,8 +20,7 @@ export default function LoginPage() {
   })
 
   const handleGoogleResponse = useCallback(async (response: any) => {
-    setError('')
-    setLoading(true)
+    setError(''); setLoading(true)
     try {
       const res = await googleLogin({ credential: response.credential })
       localStorage.setItem('token', res.data.token)
@@ -37,7 +34,6 @@ export default function LoginPage() {
   }, [])
 
   useEffect(() => {
-    // Initialize Google Sign-In button
     const initGoogle = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
@@ -46,36 +42,18 @@ export default function LoginPage() {
         })
         window.google.accounts.id.renderButton(
           document.getElementById('google-login-btn'),
-          {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: 'continue_with',
-            shape: 'rectangular',
-            logo_alignment: 'center',
-          }
+          { theme: 'outline', size: 'large', width: '100%', text: 'continue_with', shape: 'rectangular', logo_alignment: 'center' }
         )
       }
     }
-
-    // Wait for Google script to load
-    if (window.google?.accounts) {
-      initGoogle()
-    } else {
-      const timer = setInterval(() => {
-        if (window.google?.accounts) {
-          initGoogle()
-          clearInterval(timer)
-        }
-      }, 200)
+    if (window.google?.accounts) { initGoogle() } else {
+      const timer = setInterval(() => { if (window.google?.accounts) { initGoogle(); clearInterval(timer) } }, 200)
       return () => clearInterval(timer)
     }
   }, [handleGoogleResponse])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault(); setError(''); setLoading(true)
     try {
       const res = await login(form)
       localStorage.setItem('token', res.data.token)
@@ -89,31 +67,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-16" style={{ background: '#FFFAF5' }}>
+    <div className="min-h-screen flex items-center justify-center px-4 pt-16">
       {shlok.show && (
-        <ShlokGreeting
-          role={shlok.role}
-          redirectPath={shlok.redirect}
-          onComplete={() => { window.location.href = shlok.redirect }}
-        />
+        <ShlokGreeting role={shlok.role} redirectPath={shlok.redirect}
+          onComplete={() => { window.location.href = shlok.redirect }} />
       )}
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4"><AarambhLogo size={48} showText={false} /></div>
-          <h1 className="text-2xl font-extrabold mb-1" style={{ color: '#2C1810' }}>Welcome back</h1>
-          <p className="text-sm" style={{ color: '#7A6350' }}>Login to your Aarambh account</p>
+          <h1 className="text-2xl mb-1" style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, color: 'var(--text-on-light)' }}>
+            Welcome back
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-on-light2)' }}>Login to your Aarambh account</p>
         </div>
 
-        <div className="p-6 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.08)', boxShadow: '0 4px 24px rgba(120,80,30,0.04)' }}>
-          {error && <div className="p-3 rounded-xl text-sm mb-4" style={{ background: '#FEE8E8', color: '#C53030' }}>{error}</div>}
+        <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+          {error && (
+            <div className="p-3 rounded-lg text-sm mb-4" style={{ background: 'var(--red-s)', color: 'var(--red)', border: '1px solid rgba(184,50,50,0.2)' }}>
+              {error}
+            </div>
+          )}
 
-          {/* Google Sign-In Button */}
+          {/* Google Sign-In */}
           <div className="mb-5">
             <div id="google-login-btn" className="flex justify-center" />
             {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
-              <button disabled className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
-                style={{ border: '1.5px solid rgba(180,130,80,0.12)', color: '#7A6350', background: '#fff', opacity: 0.5 }}>
+              <button disabled className="w-full flex items-center justify-center gap-3 px-4 py-3 text-sm font-medium"
+                style={{ border: '1.5px solid var(--card-border)', color: 'var(--text-on-light3)', background: 'var(--input-bg)', borderRadius: 'var(--r-sm)', opacity: 0.5 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -125,40 +106,32 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px" style={{ background: 'rgba(180,130,80,0.1)' }} />
-            <span className="text-xs font-medium" style={{ color: '#B09980' }}>or login with email</span>
-            <div className="flex-1 h-px" style={{ background: 'rgba(180,130,80,0.1)' }} />
+            <div className="flex-1 divider-plain" />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-on-light3)' }}>or login with email</span>
+            <div className="flex-1 divider-plain" />
           </div>
 
-          {/* Email form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Email</label>
+              <label className="label-field block mb-1.5">Email</label>
               <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                placeholder="your@email.com" required
-                className="w-full px-4 py-3 rounded-xl text-sm"
-                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+                placeholder="your@email.com" required className="w-full" style={{ padding: '11px 16px' }} />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4A3728' }}>Password</label>
+              <label className="label-field block mb-1.5">Password</label>
               <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                placeholder="••••••••" required
-                className="w-full px-4 py-3 rounded-xl text-sm"
-                style={{ background: '#FFF5EC', border: '1.5px solid rgba(180,130,80,0.1)', color: '#2C1810' }} />
+                placeholder="••••••••" required className="w-full" style={{ padding: '11px 16px' }} />
             </div>
-            <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #D4651E, #C05818)', boxShadow: '0 4px 16px rgba(212,101,30,0.15)' }}>
-              {loading ? 'Logging in...' : 'Login'}
+            <button type="submit" disabled={loading} className="btn-primary btn-shimmer w-full">
+              {loading ? 'Logging in…' : 'Login'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: '#7A6350' }}>
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--text-on-light2)' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-semibold" style={{ color: '#D4651E' }}>Register here</Link>
+          <Link href="/register" className="font-semibold" style={{ color: 'var(--accent)' }}>Register here</Link>
         </p>
       </div>
     </div>

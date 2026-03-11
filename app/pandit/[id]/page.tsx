@@ -22,139 +22,170 @@ export default function PanditProfilePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [panditRes, servicesRes] = await Promise.all([
-          getPandit(id as string),
-          getServices(),
-        ])
+        const [panditRes, servicesRes] = await Promise.all([getPandit(id as string), getServices()])
         setPandit(panditRes.data.pandit)
         setServices(servicesRes.data.services)
-      } catch (err) {
-        console.error('Failed to load pandit')
-      } finally {
-        setLoading(false)
-      }
+      } catch (err) { console.error('Failed to load pandit') }
+      finally { setLoading(false) }
     }
     fetchData()
   }, [id])
 
-  if (loading) return <SacredLoader message="Loading pandit profile..." size="lg" />
-  if (!pandit) return <p className="text-center py-12 text-gray-500">Pandit not found</p>
+  if (loading) return <SacredLoader message="Loading pandit profile…" size="lg" />
+  if (!pandit) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-on-light2)' }}>
+      Pandit not found
+    </div>
+  )
+
+  const handleBook = () => {
+    const token = localStorage.getItem('token')
+    if (!token) { alert('Please login first to book a pandit'); router.push('/login'); return }
+    router.push(`/book/${id}${preSelectedService ? `?service=${encodeURIComponent(preSelectedService)}` : ''}`)
+  }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
-      {/* Profile Header */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-orange-100 rounded-full flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0">
-            🙏
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              Pt. {pandit.user?.firstName} {pandit.user?.lastName}
-            </h1>
-            <p className="text-gray-500">{pandit.city}, {pandit.state}</p>
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-sm sm:text-base">
-              <span className="text-yellow-500">⭐</span>
-              <span className="font-bold">{pandit.rating || 'New'}</span>
-              <span className="text-gray-400">({pandit.totalReviews} reviews)</span>
-              <span className="text-gray-300 hidden sm:inline">|</span>
-              <span className="text-gray-600">{pandit.experienceYears} yrs exp</span>
+    <div className="min-h-screen pt-24 pb-16 px-4">
+      <div className="max-w-4xl mx-auto">
+
+        {/* Profile Header */}
+        <div className="card-light p-6 mb-6" style={{ boxShadow: 'var(--shadow-lg)' }}>
+          <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, var(--accent), var(--gold))' }}>
+              🙏
+            </div>
+            <div className="flex-1">
+              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: 'clamp(1.4rem,3vw,1.9rem)', color: 'var(--text-on-light)', lineHeight: 1.2, marginBottom: 4 }}>
+                Pt. {pandit.user?.firstName} {pandit.user?.lastName}
+              </h1>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', marginBottom: 8 }}>
+                {pandit.city}, {pandit.state}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1" style={{ fontSize: '0.85rem' }}>
+                <span style={{ color: 'var(--gold)' }}>★ <strong style={{ color: 'var(--text-on-light)' }}>{pandit.rating || 'New'}</strong></span>
+                <span style={{ color: 'var(--text-on-light3)' }}>({pandit.totalReviews} reviews)</span>
+                <span style={{ color: 'var(--card-border)', padding: '0 4px' }}>·</span>
+                <span style={{ color: 'var(--text-on-light2)' }}>{pandit.experienceYears} yrs exp</span>
+              </div>
+            </div>
+            <div className="sm:text-right flex-shrink-0">
+              <div className="price-serif mb-3" style={{ fontSize: 'clamp(1.1rem,2.5vw,1.4rem)' }}>
+                ₹{pandit.priceMin?.toLocaleString()} – ₹{pandit.priceMax?.toLocaleString()}
+              </div>
+              <button onClick={handleBook} className="btn-primary btn-shimmer w-full sm:w-auto">
+                Book Now
+              </button>
             </div>
           </div>
-          <div className="sm:text-right">
-            <p className="text-xl sm:text-2xl font-bold text-orange-600 mb-3">₹{pandit.priceMin} – ₹{pandit.priceMax}</p>
-            <button
-              className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition"
-              onClick={() => {
-                const token = localStorage.getItem('token')
-                if (!token) {
-                  alert('Please login first to book a pandit')
-                  router.push('/login')
-                  return
-                }
-                router.push(`/book/${id}${preSelectedService ? `?service=${encodeURIComponent(preSelectedService)}` : ''}`)
-              }}
-            >
-              Book Now
-            </button>
-          </div>
-        </div>
 
-        {pandit.bio && (
-          <p className="mt-4 text-gray-600 border-t pt-4">{pandit.bio}</p>
-        )}
+          {pandit.bio && (
+            <p className="mt-5 pt-5" style={{ borderTop: '1px solid var(--card-border)', fontSize: '0.9rem', color: 'var(--text-on-light2)', lineHeight: 1.7 }}>
+              {pandit.bio}
+            </p>
+          )}
 
-        <div className="mt-4 flex flex-wrap gap-4">
-          <div>
-            <span className="text-sm font-medium text-gray-500">Languages: </span>
-            {pandit.languages?.map((lang: string) => (
-              <span key={lang} className="bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded mr-1">{lang}</span>
-            ))}
-          </div>
-          <div>
-            <span className="text-sm font-medium text-gray-500">Specializations: </span>
-            {pandit.specializations?.map((spec: string) => (
-              <span key={spec} className="bg-green-50 text-green-600 text-sm px-2 py-1 rounded mr-1">{spec}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {message && <div className="bg-green-50 text-green-700 p-4 rounded-xl mb-6 font-medium">{message}</div>}
-      {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6">{error}</div>}
-
-      {/* Services Offered */}
-      {pandit.services?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Services Offered</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            {pandit.services.map((ps: any) => (
-              <div key={ps.id}
-                onClick={() => {
-                  const token = localStorage.getItem('token')
-                  if (!token) {
-                    alert('Please login first to book a pandit')
-                    router.push('/login')
-                    return
-                  }
-                  router.push(`/book/${id}?service=${encodeURIComponent(ps.service?.name)}`)
-                }}
-                className="flex justify-between items-center border rounded-lg p-3 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all">
+          {(pandit.languages?.length > 0 || pandit.specializations?.length > 0) && (
+            <div className="mt-5 flex flex-wrap gap-5">
+              {pandit.languages?.length > 0 && (
                 <div>
-                  <p className="font-medium text-gray-800">{ps.service?.name}</p>
-                  {ps.duration && <p className="text-sm text-gray-500">{ps.duration} mins</p>}
+                  <span className="label-field">Languages: </span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {pandit.languages.map((lang: string) => (
+                      <span key={lang} className="badge" style={{ background: 'var(--blue-s)', color: 'var(--blue)', border: '1px solid rgba(42,95,168,0.2)' }}>
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className="font-bold text-orange-600">₹{ps.price}</p>
-                  <span className="text-xs font-semibold text-orange-500">Book →</span>
+              )}
+              {pandit.specializations?.length > 0 && (
+                <div>
+                  <span className="label-field">Specializations: </span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {pandit.specializations.map((spec: string) => (
+                      <span key={spec} className="badge" style={{ background: 'var(--green-s)', color: 'var(--green)', border: '1px solid rgba(46,125,82,0.2)' }}>
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Reviews */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          Reviews ({pandit.reviews?.length || 0})
-        </h2>
-        {pandit.reviews?.length === 0 ? (
-          <p className="text-gray-500">No reviews yet</p>
-        ) : (
-          <div className="space-y-4">
-            {pandit.reviews?.map((review: any) => (
-              <div key={review.id} className="border-b pb-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-gray-800">{review.user?.firstName} {review.user?.lastName}</span>
-                  <span className="text-yellow-500">{'⭐'.repeat(review.rating)}</span>
-                </div>
-                {review.comment && <p className="text-gray-600">{review.comment}</p>}
-                <p className="text-xs text-gray-400 mt-1">{new Date(review.createdAt).toLocaleDateString()}</p>
-              </div>
-            ))}
+        {message && (
+          <div className="p-4 rounded-lg mb-5" style={{ background: 'var(--green-s)', color: 'var(--green)', border: '1px solid rgba(46,125,82,0.2)' }}>
+            {message}
           </div>
         )}
+        {error && (
+          <div className="p-4 rounded-lg mb-5" style={{ background: 'var(--red-s)', color: 'var(--red)', border: '1px solid rgba(184,50,50,0.2)' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Services Offered */}
+        {pandit.services?.length > 0 && (
+          <div className="card-light p-6 mb-6" style={{ boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.4rem', color: 'var(--text-on-light)', marginBottom: 16 }}>
+              Services Offered
+            </h2>
+            <div className="grid md:grid-cols-2 gap-3">
+              {pandit.services.map((ps: any) => (
+                <div key={ps.id}
+                  onClick={() => {
+                    const token = localStorage.getItem('token')
+                    if (!token) { alert('Please login first to book a pandit'); router.push('/login'); return }
+                    router.push(`/book/${id}?service=${encodeURIComponent(ps.service?.name)}`)
+                  }}
+                  className="flex justify-between items-center p-4 cursor-pointer transition-all hover:-translate-y-0.5"
+                  style={{ border: '1.5px solid var(--card-border)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--card-border)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--text-on-light)', fontSize: '0.9rem' }}>{ps.service?.name}</p>
+                    {ps.duration && <p style={{ fontSize: '0.78rem', color: 'var(--text-on-light3)', marginTop: 2 }}>{ps.duration} mins</p>}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="price-serif" style={{ fontSize: '1rem' }}>₹{ps.price}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)' }}>Book →</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Reviews */}
+        <div className="card-light p-6" style={{ boxShadow: 'var(--shadow)' }}>
+          <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.4rem', color: 'var(--text-on-light)', marginBottom: 16 }}>
+            Reviews ({pandit.reviews?.length || 0})
+          </h2>
+          {!pandit.reviews?.length ? (
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light3)' }}>No reviews yet</p>
+          ) : (
+            <div className="space-y-5">
+              {pandit.reviews.map((review: any) => (
+                <div key={review.id} className="pb-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span style={{ fontWeight: 600, color: 'var(--text-on-light)', fontSize: '0.9rem' }}>
+                      {review.user?.firstName} {review.user?.lastName}
+                    </span>
+                    <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>{'★'.repeat(review.rating)}</span>
+                  </div>
+                  {review.comment && (
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-on-light2)', lineHeight: 1.6 }}>{review.comment}</p>
+                  )}
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-on-light3)', marginTop: 6 }}>
+                    {new Date(review.createdAt).toLocaleDateString('en-IN')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

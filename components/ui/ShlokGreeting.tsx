@@ -125,12 +125,12 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
           position: 'relative',
           width: '100%',
           maxWidth: 480,
-          background: '#FFFAF5',
+          background: 'var(--card-light-solid)',
           borderRadius: 28,
           padding: '48px 40px 32px',
-          border: '1px solid rgba(180,130,80,0.22)',
+          border: '1px solid var(--card-border)',
           boxShadow:
-            '0 32px 80px rgba(44,24,16,0.45), 0 0 0 1px rgba(212,101,30,0.1), inset 0 1px 0 rgba(255,248,235,0.9)',
+            '0 32px 80px rgba(44,24,16,0.45), 0 0 0 1px var(--accent-border), inset 0 1px 0 rgba(255,248,235,0.9)',
           textAlign: 'center',
           overflow: 'hidden',
           transform: `scale(${cardScale})`,
@@ -144,7 +144,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             position: 'absolute',
             inset: 8,
             borderRadius: 22,
-            border: '1px solid rgba(180,130,80,0.14)',
+            border: '1px solid var(--card-border)',
             pointerEvents: 'none',
           }}
         />
@@ -164,10 +164,10 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
                 right: isLeft ? undefined : 18,
                 width: 20,
                 height: 20,
-                borderTop: isTop ? '1.5px solid rgba(212,101,30,0.25)' : undefined,
-                borderBottom: isTop ? undefined : '1.5px solid rgba(212,101,30,0.25)',
-                borderLeft: isLeft ? '1.5px solid rgba(212,101,30,0.25)' : undefined,
-                borderRight: isLeft ? undefined : '1.5px solid rgba(212,101,30,0.25)',
+                borderTop: isTop ? '1.5px solid var(--accent-border)' : undefined,
+                borderBottom: isTop ? undefined : '1.5px solid var(--accent-border)',
+                borderLeft: isLeft ? '1.5px solid var(--accent-border)' : undefined,
+                borderRight: isLeft ? undefined : '1.5px solid var(--accent-border)',
                 borderTopLeftRadius: corner === 'top-left' ? 6 : undefined,
                 borderTopRightRadius: corner === 'top-right' ? 6 : undefined,
                 borderBottomLeftRadius: corner === 'bottom-left' ? 6 : undefined,
@@ -187,7 +187,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             transform: 'translate(-50%, -50%)',
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: '16rem',
-            color: 'rgba(212,101,30,0.04)',
+            color: 'var(--accent-bg)',
             lineHeight: 1,
             pointerEvents: 'none',
             userSelect: 'none',
@@ -210,7 +210,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: '3rem',
             fontWeight: 700,
-            color: '#2C1810',
+            color: 'var(--text-on-light)',
             lineHeight: 1,
             marginBottom: 6,
             position: 'relative',
@@ -227,7 +227,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             fontWeight: 600,
             letterSpacing: '3.5px',
             textTransform: 'uppercase',
-            color: '#D4651E',
+            color: 'var(--accent)',
             marginBottom: 28,
             position: 'relative',
           }}
@@ -249,14 +249,14 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             style={{
               flex: 1,
               height: 1,
-              background: 'linear-gradient(to right, transparent, rgba(180,130,80,0.22))',
+              background: 'linear-gradient(to right, transparent, var(--card-border))',
             }}
           />
           <span
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: '1rem',
-              color: 'rgba(212,101,30,0.45)',
+              color: 'var(--gold-dim)',
             }}
           >
             ✦
@@ -265,7 +265,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             style={{
               flex: 1,
               height: 1,
-              background: 'linear-gradient(to left, transparent, rgba(180,130,80,0.22))',
+              background: 'linear-gradient(to left, transparent, var(--card-border))',
             }}
           />
         </div>
@@ -277,7 +277,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             fontSize: '1.55rem',
             fontStyle: 'italic',
             fontWeight: 500,
-            color: '#4A3728',
+            color: 'var(--text-on-light)',
             lineHeight: 1.55,
             marginBottom: 14,
             position: 'relative',
@@ -291,7 +291,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
           style={{
             fontFamily: 'Outfit, sans-serif',
             fontSize: '0.8rem',
-            color: '#B09980',
+            color: 'var(--text-on-light2)',
             lineHeight: 1.65,
             marginBottom: 22,
             fontStyle: 'italic',
@@ -307,7 +307,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             fontFamily: 'Outfit, sans-serif',
             fontSize: '0.88rem',
             fontWeight: 500,
-            color: '#7A6350',
+            color: 'var(--text-on-light2)',
             marginBottom: 24,
             position: 'relative',
           }}
@@ -320,7 +320,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
           style={{
             fontFamily: 'Outfit, sans-serif',
             fontSize: '0.68rem',
-            color: 'rgba(180,130,80,0.6)',
+            color: 'var(--text-on-light3)',
             marginBottom: 14,
             letterSpacing: '0.5px',
             position: 'relative',
@@ -334,7 +334,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
           style={{
             width: '100%',
             height: 3,
-            background: 'rgba(180,130,80,0.12)',
+            background: 'var(--card-border)',
             borderRadius: 2,
             overflow: 'hidden',
             position: 'relative',
@@ -344,7 +344,7 @@ export default function ShlokGreeting({ role, redirectPath, onComplete }: ShlokG
             style={{
               height: '100%',
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #D4651E, #E88030)',
+              background: 'linear-gradient(90deg, var(--accent), var(--accent-h))',
               borderRadius: 2,
               transition: 'width 0.05s linear',
             }}

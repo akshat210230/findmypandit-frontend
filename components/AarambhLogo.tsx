@@ -24,8 +24,8 @@ export default function AarambhLogo({ size = 36, showText = true }: { size?: num
       </div>
       {showText && (
         <div className="flex flex-col leading-none">
-          <span className="text-lg font-extrabold tracking-tight" style={{ color: '#2C1810', letterSpacing: '-0.3px' }}>Aarambh</span>
-          <span className="text-[8px] font-medium tracking-wider" style={{ color: '#B09980' }}>शुभ आरम्भ</span>
+          <span className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--text-on-light)', letterSpacing: '-0.3px' }}>Aarambh</span>
+          <span className="text-[8px] font-medium tracking-wider" style={{ color: 'var(--text-on-light3)' }}>शुभ आरम्भ</span>
         </div>
       )}
     </div>

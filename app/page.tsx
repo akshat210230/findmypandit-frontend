@@ -67,18 +67,18 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div style={{ background: '#FFFAF5', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
       {/* ════════ HERO ════════ */}
       <section className="relative overflow-hidden" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
         {/* Layered background */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #FFF0DC 0%, #FFFAF5 55%, #FEF5EE 100%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,220,140,0.2) 0%, var(--bg) 55%, rgba(240,220,190,0.8) 100%)' }} />
 
         {/* Rotating mandala rings */}
         <div className="absolute inset-0 flex items-center justify-center" style={{ transform: `translateY(${scrollY * 0.06}px)` }}>
           <div className="animate-rotate-slow" style={{ opacity: 0.1 }}>
-            <svg viewBox="0 0 600 600" style={{ width: 800, height: 800 }} fill="none" stroke="#C05818" strokeWidth="0.5">
+            <svg viewBox="0 0 600 600" style={{ width: 800, height: 800 }} fill="none" stroke="var(--card-dark)" strokeWidth="0.5">
               <circle cx="300" cy="300" r="290" strokeDasharray="4 8" />
               <circle cx="300" cy="300" r="240" />
               <circle cx="300" cy="300" r="190" strokeDasharray="2 6" />
@@ -96,7 +96,7 @@ export default function HomePage() {
             </svg>
           </div>
           <div className="animate-rotate-reverse absolute" style={{ opacity: 0.03 }}>
-            <svg viewBox="0 0 600 600" style={{ width: 600, height: 600 }} fill="none" stroke="#D4651E" strokeWidth="0.8">
+            <svg viewBox="0 0 600 600" style={{ width: 600, height: 600 }} fill="none" stroke="var(--accent)" strokeWidth="0.8">
               {[...Array(8)].map((_, i) => (
                 <ellipse key={i} cx="300" cy="60" rx="28" ry="70" transform={`rotate(${i * 45} 300 300)`} />
               ))}
@@ -106,12 +106,12 @@ export default function HomePage() {
 
         {/* Warm light rays from top */}
         <div className="absolute inset-0" style={{
-          background: 'conic-gradient(from 270deg at 50% -20%, rgba(232,128,48,0.04) 0deg, transparent 60deg, rgba(212,101,30,0.03) 120deg, transparent 180deg, rgba(184,134,11,0.03) 240deg, transparent 300deg, rgba(232,128,48,0.04) 360deg)',
+          background: 'conic-gradient(from 270deg at 50% -20%, rgba(200,72,0,0.04) 0deg, transparent 60deg, rgba(200,72,0,0.03) 120deg, transparent 180deg, rgba(224,160,32,0.03) 240deg, transparent 300deg, rgba(200,72,0,0.04) 360deg)',
           transform: `translateY(${scrollY * 0.04}px)`
         }} />
 
         {/* Dot grid */}
-        <div className="absolute inset-0" style={{ opacity: 0.04, backgroundImage: 'radial-gradient(#8B4513 1.2px, transparent 1.2px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute inset-0" style={{ opacity: 0.04, backgroundImage: 'radial-gradient(var(--card-dark) 1.2px, transparent 1.2px)', backgroundSize: '28px 28px' }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-24">
@@ -136,9 +136,9 @@ export default function HomePage() {
             display: 'flex', justifyContent: 'center', marginBottom: 20
           }}>
             <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full"
-              style={{ background: 'rgba(212,101,30,0.06)', border: '1px solid rgba(212,101,30,0.14)', backdropFilter: 'blur(8px)' }}>
-              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#2D8F4E' }} />
-              <span className="text-sm font-medium" style={{ color: '#7A6350', fontFamily: 'Outfit, sans-serif' }}>
+              style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', backdropFilter: 'blur(8px)' }}>
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--green)' }} />
+              <span className="text-sm font-medium" style={{ color: 'var(--text-on-light2)', fontFamily: 'Outfit, sans-serif' }}>
                 Trusted by 15,000+ families across India
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function HomePage() {
               fontWeight: 700,
               letterSpacing: '-2px',
               marginBottom: 12,
-              background: 'linear-gradient(135deg, #2C1810 0%, #D4651E 30%, #B8860B 50%, #D4651E 70%, #2C1810 100%)',
+              background: 'linear-gradient(135deg, var(--text-on-light) 0%, var(--accent) 30%, var(--gold) 50%, var(--accent) 70%, var(--text-on-light) 100%)',
               backgroundSize: '200% auto',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -179,7 +179,7 @@ export default function HomePage() {
               fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
               fontWeight: 500,
               fontStyle: 'italic',
-              color: '#7A6350',
+              color: 'var(--text-on-light2)',
               letterSpacing: '0.5px'
             }}>
               जहाँ श्रद्धा मिले सेवा से
@@ -193,8 +193,8 @@ export default function HomePage() {
             transition: 'all 0.7s cubic-bezier(0.16,1,0.3,1) 0.42s',
             marginBottom: 40
           }}>
-            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.05rem', color: '#7A6350', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-              Book verified pandits for weddings, pujas & all Hindu ceremonies.
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.05rem', color: 'var(--text-on-light2)', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
+              Book verified pandits for weddings, pujas &amp; all Hindu ceremonies.
               Transparent pricing. Auspicious timing. Instant booking.
             </p>
           </div>
@@ -210,37 +210,37 @@ export default function HomePage() {
               style={{
                 fontFamily: 'Outfit, sans-serif',
                 padding: '15px 36px',
-                borderRadius: 16,
+                borderRadius: 'var(--r-pill)',
                 fontSize: '1.05rem',
                 fontWeight: 700,
                 color: '#fff',
-                background: 'linear-gradient(135deg, #D4651E, #C05818)',
-                boxShadow: '0 8px 32px rgba(212,101,30,0.22), 0 2px 8px rgba(212,101,30,0.15)',
+                background: 'var(--accent)',
+                boxShadow: '0 8px 32px rgba(200,72,0,0.22), 0 2px 8px rgba(200,72,0,0.15)',
                 textDecoration: 'none',
                 display: 'inline-block',
                 transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)'
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 48px rgba(212,101,30,0.28)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(212,101,30,0.22)' }}>
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-h)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 48px rgba(200,72,0,0.28)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(200,72,0,0.22)' }}>
               Find a Pandit
             </Link>
             <Link href="/services"
               style={{
                 fontFamily: 'Outfit, sans-serif',
                 padding: '15px 36px',
-                borderRadius: 16,
+                borderRadius: 'var(--r-pill)',
                 fontSize: '1.05rem',
                 fontWeight: 500,
-                color: '#7A6350',
-                border: '1.5px solid rgba(180,130,80,0.22)',
-                background: 'rgba(255,255,255,0.6)',
+                color: 'var(--text-on-light2)',
+                border: '1.5px solid var(--card-border)',
+                background: 'var(--card-light)',
                 backdropFilter: 'blur(8px)',
                 textDecoration: 'none',
                 display: 'inline-block',
                 transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)'
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,101,30,0.35)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(180,130,80,0.22)' }}>
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--card-border)' }}>
               Explore Services →
             </Link>
           </div>
@@ -259,8 +259,8 @@ export default function HomePage() {
                 transform: visible ? 'translateY(0)' : 'translateY(28px)',
                 transition: `opacity 0.8s cubic-bezier(0.16,1,0.3,1) ${650 + i * 120}ms, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${650 + i * 120}ms`
               }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', fontWeight: 700, color: '#D4651E', lineHeight: 1 }}>{s.val}</div>
-                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', color: '#B09980', marginTop: 4, fontWeight: 500 }}>{s.label}</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', color: 'var(--text-on-light3)', marginTop: 4, fontWeight: 500 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -268,9 +268,9 @@ export default function HomePage() {
           {/* Scroll indicator */}
           <div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
             opacity: visible ? 0.6 : 0, transition: 'opacity 1s ease 1s' }}>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', color: '#B09980', letterSpacing: '2px', textTransform: 'uppercase' }}>Scroll</span>
-            <div style={{ width: 20, height: 32, borderRadius: 10, border: '1.5px solid rgba(180,130,80,0.25)', display: 'flex', justifyContent: 'center', paddingTop: 6 }}>
-              <div className="animate-bounce" style={{ width: 4, height: 8, borderRadius: 2, background: '#D4651E' }} />
+            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', color: 'var(--text-on-light3)', letterSpacing: '2px', textTransform: 'uppercase' }}>Scroll</span>
+            <div style={{ width: 20, height: 32, borderRadius: 10, border: '1.5px solid var(--card-border)', display: 'flex', justifyContent: 'center', paddingTop: 6 }}>
+              <div className="animate-bounce" style={{ width: 4, height: 8, borderRadius: 2, background: 'var(--accent)' }} />
             </div>
           </div>
         </div>
@@ -279,17 +279,17 @@ export default function HomePage() {
       {/* Sacred Divider */}
       <div style={{ padding: '0 24px' }}>
         <div className="sacred-divider" style={{ maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'rgba(212,101,30,0.3)' }}>ॐ</span>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'var(--gold-dim)' }}>ॐ</span>
         </div>
       </div>
 
       {/* ════════ HOW IT WORKS ════════ */}
-      <section style={{ padding: '96px 24px', background: '#FFFAF5' }}>
+      <section style={{ padding: '96px 24px', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <RevealSection>
             <div style={{ textAlign: 'center', marginBottom: 60 }}>
-              <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#D4651E', display: 'block', marginBottom: 14 }}>Simple Process</span>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: '#2C1810' }}>
+              <span className="eyebrow" style={{ display: 'block', marginBottom: 14 }}>Simple Process</span>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: 'var(--text-on-light)' }}>
                 Book a pandit in 4 steps
               </h2>
             </div>
@@ -297,20 +297,17 @@ export default function HomePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
             {STEPS.map((step, i) => (
               <RevealSection key={i} delay={i * 150}>
-                <div className="card-hover" style={{
+                <div className="card-hover card-light" style={{
                   padding: '32px 28px',
-                  borderRadius: 20,
-                  background: '#FFFFFF',
-                  border: '1px solid rgba(180,130,80,0.08)',
-                  boxShadow: '0 2px 16px rgba(120,80,30,0.04)',
+                  boxShadow: 'var(--shadow)',
                   height: '100%'
                 }}>
                   <div style={{ marginBottom: 20 }}>
-                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '3.5rem', fontWeight: 700, color: 'rgba(212,101,30,0.1)', lineHeight: 1 }}>{step.num}</span>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '3.5rem', fontWeight: 700, color: 'var(--gold-dim)', lineHeight: 1 }}>{step.num}</span>
                   </div>
                   <div style={{ fontSize: '1.8rem', marginBottom: 12 }}>{step.icon}</div>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 600, color: '#2C1810', marginBottom: 8 }}>{step.title}</h3>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.88rem', color: '#7A6350', lineHeight: 1.6 }}>{step.desc}</p>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-on-light)', marginBottom: 8 }}>{step.title}</h3>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.88rem', color: 'var(--text-on-light2)', lineHeight: 1.6 }}>{step.desc}</p>
                 </div>
               </RevealSection>
             ))}
@@ -321,20 +318,20 @@ export default function HomePage() {
       {/* Sacred Divider */}
       <div style={{ padding: '0 24px' }}>
         <div className="sacred-divider" style={{ maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'rgba(212,101,30,0.3)' }}>✦</span>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'var(--gold-dim)' }}>✦</span>
         </div>
       </div>
 
       {/* ════════ SERVICES ════════ */}
-      <section style={{ padding: '96px 24px', background: 'linear-gradient(180deg, #FFFAF5, #FFF5EC, #FFFAF5)' }}>
+      <section style={{ padding: '96px 24px', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <RevealSection>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 52, flexWrap: 'wrap', gap: 16 }}>
               <div>
-                <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#D4651E', display: 'block', marginBottom: 14 }}>Ceremonies</span>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: '#2C1810' }}>Sacred services we offer</h2>
+                <span className="eyebrow" style={{ display: 'block', marginBottom: 14 }}>Ceremonies</span>
+                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: 'var(--text-on-light)' }}>Sacred services we offer</h2>
               </div>
-              <Link href="/services" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: '#D4651E', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, transition: 'gap 0.2s' }}>
+              <Link href="/services" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, transition: 'gap 0.2s' }}>
                 View all 15+ →
               </Link>
             </div>
@@ -344,22 +341,19 @@ export default function HomePage() {
             {SERVICES.map((s, i) => (
               <RevealSection key={i} delay={i * 150}>
                 <Link href={`/search?service=${encodeURIComponent(s.name)}`} style={{ textDecoration: 'none', display: 'block' }}>
-                  <div className="card-hover" style={{
+                  <div className="card-hover card-light" style={{
                     padding: '32px 28px',
-                    borderRadius: 20,
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(180,130,80,0.08)',
-                    boxShadow: '0 2px 16px rgba(120,80,30,0.04)',
+                    boxShadow: 'var(--shadow)',
                     cursor: 'pointer',
                     position: 'relative',
                     overflow: 'hidden'
                   }}>
-                    <div style={{ position: 'absolute', top: -20, right: -20, fontSize: '5rem', opacity: 0.04, pointerEvents: 'none', fontFamily: "'Cormorant Garamond', serif" }}>ॐ</div>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', background: 'rgba(212,101,30,0.06)', marginBottom: 18 }}>{s.icon}</div>
-                    <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 600, color: '#2C1810', marginBottom: 4 }}>{s.name}</h3>
-                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', color: '#B09980', fontWeight: 500, marginBottom: 10 }}>{s.hindi}</p>
-                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.88rem', color: '#7A6350', lineHeight: 1.6, marginBottom: 16 }}>{s.desc}</p>
-                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.82rem', fontWeight: 600, color: '#D4651E' }}>Find Pandits →</span>
+                    <div style={{ position: 'absolute', top: -20, right: -20, fontSize: '5rem', opacity: 0.04, pointerEvents: 'none', fontFamily: "'Cormorant Garamond', serif", color: 'var(--accent)' }}>ॐ</div>
+                    <div style={{ width: 48, height: 48, borderRadius: 'var(--r-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', marginBottom: 18 }}>{s.icon}</div>
+                    <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-on-light)', marginBottom: 4 }}>{s.name}</h3>
+                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', color: 'var(--text-on-light3)', fontWeight: 500, marginBottom: 10 }}>{s.hindi}</p>
+                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.88rem', color: 'var(--text-on-light2)', lineHeight: 1.6, marginBottom: 16 }}>{s.desc}</p>
+                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent)' }}>Find Pandits →</span>
                   </div>
                 </Link>
               </RevealSection>
@@ -371,69 +365,66 @@ export default function HomePage() {
       {/* Sacred Divider */}
       <div style={{ padding: '0 24px' }}>
         <div className="sacred-divider" style={{ maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'rgba(212,101,30,0.3)' }}>🪔</span>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'var(--gold-dim)' }}>🪔</span>
         </div>
       </div>
 
       {/* ════════ CHOGHADIYA ════════ */}
-      <section style={{ padding: '96px 24px', background: 'linear-gradient(135deg, #FEF0E4, #FFF5EC)' }}>
+      <section style={{ padding: '96px 24px', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, alignItems: 'center' }}>
             <RevealSection>
               <div>
-                <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#D4651E', display: 'block', marginBottom: 14 }}>Unique Feature</span>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: '#2C1810', marginBottom: 20, lineHeight: 1.15 }}>
+                <span className="eyebrow" style={{ display: 'block', marginBottom: 14 }}>Unique Feature</span>
+                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: 'var(--text-on-light)', marginBottom: 20, lineHeight: 1.15 }}>
                   Book at the most<br />
-                  <span style={{ color: '#D4651E', fontStyle: 'italic' }}>auspicious time</span>
+                  <span style={{ color: 'var(--accent)', fontStyle: 'italic' }}>auspicious time</span>
                 </h2>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1rem', color: '#7A6350', lineHeight: 1.75, marginBottom: 32 }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1rem', color: 'var(--text-on-light2)', lineHeight: 1.75, marginBottom: 32 }}>
                   Our built-in Choghadiya calculator shows the most auspicious time slots for your ceremony based on Vedic astrology.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {['Amrit, Shubh & Labh periods highlighted in green', 'Rog, Kaal & Udveg marked to avoid', 'Updates automatically for every date'].map((f, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, background: '#E8F5EC', color: '#2D8F4E', flexShrink: 0 }}>✓</div>
-                      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', color: '#7A6350' }}>{f}</span>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, background: 'var(--green-s)', color: 'var(--green)', flexShrink: 0 }}>✓</div>
+                      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', color: 'var(--text-on-light2)' }}>{f}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </RevealSection>
             <RevealSection delay={150}>
-              <div style={{ padding: 28, borderRadius: 24, background: '#FFFFFF', border: '1px solid rgba(180,130,80,0.1)', boxShadow: '0 12px 48px rgba(120,80,30,0.08)' }}>
+              <div className="card-light" style={{ padding: 28, boxShadow: 'var(--shadow-lg)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                   <span style={{ fontSize: '1.2rem' }}>🕉️</span>
-                  <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem', fontWeight: 600, color: '#2C1810' }}>Din ka Choghadiya</span>
-                  <span style={{ marginLeft: 'auto', fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', padding: '4px 12px', borderRadius: 20, fontWeight: 600, background: 'rgba(212,101,30,0.08)', color: '#D4651E' }}>Sat, 22 Feb</span>
+                  <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-on-light)' }}>Din ka Choghadiya</span>
+                  <span className="badge ml-auto" style={{ background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>Sat, 22 Feb</span>
                 </div>
                 {[
-                  { name: 'Amrit', time: '6:00–7:30 AM', type: 'best', color: '#16a34a', bg: '#E8F5EC' },
-                  { name: 'Shubh', time: '7:30–9:00 AM', type: 'good', color: '#2D8F4E', bg: '#E8F5EC' },
-                  { name: 'Rog', time: '9:00–10:30 AM', type: 'bad', color: '#C53030', bg: '#FEE8E8' },
-                  { name: 'Labh', time: '10:30–12:00 PM', type: 'good', color: '#65a30d', bg: '#F0FFF0' },
-                  { name: 'Kaal', time: '12:00–1:30 PM', type: 'bad', color: '#C53030', bg: '#FEE8E8' },
+                  { name: 'Amrit', time: '6:00–7:30 AM', type: 'best', color: '#16a34a', bg: 'var(--green-s)' },
+                  { name: 'Shubh', time: '7:30–9:00 AM', type: 'good', color: '#2D8F4E', bg: 'var(--green-s)' },
+                  { name: 'Rog', time: '9:00–10:30 AM', type: 'bad', color: 'var(--red)', bg: 'var(--red-s)' },
+                  { name: 'Labh', time: '10:30–12:00 PM', type: 'good', color: '#65a30d', bg: 'var(--green-s)' },
+                  { name: 'Kaal', time: '12:00–1:30 PM', type: 'bad', color: 'var(--red)', bg: 'var(--red-s)' },
                 ].map((s, i) => (
                   <div key={i} style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 8,
-                    background: i === 0 ? 'rgba(212,101,30,0.04)' : s.type === 'bad' ? 'rgba(197,48,48,0.02)' : 'rgba(0,0,0,0.01)',
-                    border: i === 0 ? '1.5px solid rgba(212,101,30,0.15)' : '1.5px solid transparent',
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 'var(--r-sm)', marginBottom: 8,
+                    background: i === 0 ? 'var(--accent-bg)' : 'transparent',
+                    border: i === 0 ? '1.5px solid var(--accent-border)' : '1.5px solid var(--card-border)',
                     opacity: s.type === 'bad' ? 0.45 : 1,
                     transition: 'all 0.2s'
                   }}>
                     <div style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: '#2C1810', flex: 1 }}>{s.name}</span>
-                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: '#B09980' }}>{s.time}</span>
-                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', padding: '3px 10px', borderRadius: 10, fontWeight: 700, background: s.bg, color: s.color }}>
+                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-on-light)', flex: 1 }}>{s.name}</span>
+                    <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: 'var(--text-on-light3)' }}>{s.time}</span>
+                    <span className="badge" style={{ background: s.bg, color: s.color, fontSize: '0.65rem' }}>
                       {s.type === 'best' ? 'BEST' : s.type === 'good' ? 'GOOD' : 'AVOID'}
                     </span>
                   </div>
                 ))}
-                <Link href="/search" className="btn-shimmer" style={{
-                  display: 'block', width: '100%', marginTop: 20, padding: '14px', borderRadius: 14,
-                  textAlign: 'center', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem',
-                  color: '#fff', background: 'linear-gradient(135deg, #D4651E, #C05818)',
-                  boxShadow: '0 4px 20px rgba(212,101,30,0.2)', textDecoration: 'none',
-                  transition: 'all 0.3s'
+                <Link href="/search" className="btn-primary btn-shimmer" style={{
+                  display: 'block', width: '100%', marginTop: 20,
+                  textAlign: 'center', textDecoration: 'none',
                 }}>
                   Try it Now — Book a Pandit
                 </Link>
@@ -446,39 +437,39 @@ export default function HomePage() {
       {/* Sacred Divider */}
       <div style={{ padding: '0 24px' }}>
         <div className="sacred-divider" style={{ maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'rgba(212,101,30,0.3)' }}>✦</span>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.4rem', color: 'var(--gold-dim)' }}>✦</span>
         </div>
       </div>
 
       {/* ════════ TESTIMONIALS ════════ */}
-      <section style={{ padding: '96px 24px', background: '#FFFAF5' }}>
+      <section style={{ padding: '96px 24px', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <RevealSection>
             <div style={{ textAlign: 'center', marginBottom: 56 }}>
-              <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#D4651E', display: 'block', marginBottom: 14 }}>Testimonials</span>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: '#2C1810' }}>Hear from our families</h2>
+              <span className="eyebrow" style={{ display: 'block', marginBottom: 14 }}>Testimonials</span>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, color: 'var(--text-on-light)' }}>Hear from our families</h2>
             </div>
           </RevealSection>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {REVIEWS.map((r, i) => (
               <RevealSection key={i} delay={i * 120} direction={i % 2 === 0 ? 'left' : 'right'}>
-                <div className="card-hover" style={{
-                  padding: '32px 28px', borderRadius: 20, background: '#FFFFFF',
-                  border: '1px solid rgba(180,130,80,0.08)', boxShadow: '0 2px 16px rgba(120,80,30,0.04)',
+                <div className="card-hover card-light" style={{
+                  padding: '32px 28px',
+                  boxShadow: 'var(--shadow)',
                   position: 'relative', overflow: 'hidden'
                 }}>
-                  <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: "'Cormorant Garamond', serif", fontSize: '4rem', color: 'rgba(212,101,30,0.06)', lineHeight: 1 }}>"</div>
+                  <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: "'Cormorant Garamond', serif", fontSize: '4rem', color: 'var(--gold-dim)', lineHeight: 1 }}>"</div>
                   <div style={{ display: 'flex', gap: 3, marginBottom: 16 }}>
-                    {[...Array(r.rating)].map((_, j) => <span key={j} style={{ color: '#D4A017', fontSize: '0.9rem' }}>★</span>)}
+                    {[...Array(r.rating)].map((_, j) => <span key={j} style={{ color: 'var(--gold)', fontSize: '0.9rem' }}>★</span>)}
                   </div>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', color: '#7A6350', lineHeight: 1.7, marginBottom: 24 }}>&ldquo;{r.text}&rdquo;</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', color: 'var(--text-on-light2)', lineHeight: 1.7, marginBottom: 24 }}>&ldquo;{r.text}&rdquo;</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #D4651E, #B8860B)', flexShrink: 0 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, var(--accent), var(--gold))', flexShrink: 0 }}>
                       {r.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
-                      <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: '#2C1810' }}>{r.name}</div>
-                      <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', color: '#B09980' }}>{r.city}</div>
+                      <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-on-light)' }}>{r.name}</div>
+                      <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', color: 'var(--text-on-light3)' }}>{r.city}</div>
                     </div>
                   </div>
                 </div>
@@ -489,27 +480,27 @@ export default function HomePage() {
       </section>
 
       {/* ════════ CTA ════════ */}
-      <section style={{ padding: '96px 24px', background: 'linear-gradient(135deg, #FEF0E4, #FFF5EC)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.015, backgroundImage: 'radial-gradient(#8B4513 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', opacity: 0.03, fontFamily: "'Cormorant Garamond', serif", fontSize: '28rem', color: '#D4651E', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>ॐ</div>
+      <section style={{ padding: '96px 24px', background: 'var(--card-dark)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.015, backgroundImage: 'radial-gradient(var(--text-on-dark) 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', opacity: 0.04, fontFamily: "'Cormorant Garamond', serif", fontSize: '28rem', color: 'var(--gold)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>ॐ</div>
         <RevealSection>
           <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
               <div className="animate-flicker"><AarambhLogo size={52} showText={false} /></div>
             </div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.8rem, 7vw, 4.5rem)', fontWeight: 700, color: '#2C1810', lineHeight: 1, marginBottom: 8 }}>Aarambh</h2>
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontStyle: 'italic', color: '#7A6350', marginBottom: 12 }}>जहाँ श्रद्धा मिले सेवा से</p>
-            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1rem', color: '#7A6350', marginBottom: 40, lineHeight: 1.7 }}>Join 15,000+ happy families. It only takes a few seconds to get started.</p>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.8rem, 7vw, 4.5rem)', fontWeight: 700, color: 'var(--text-on-dark)', lineHeight: 1, marginBottom: 8 }}>Aarambh</h2>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontStyle: 'italic', color: 'var(--text-on-dark2)', marginBottom: 12 }}>जहाँ श्रद्धा मिले सेवा से</p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1rem', color: 'var(--text-on-dark2)', marginBottom: 40, lineHeight: 1.7 }}>Join 15,000+ happy families. It only takes a few seconds to get started.</p>
             <Link href="/register" className="btn-shimmer" style={{
               fontFamily: 'Outfit, sans-serif',
-              display: 'inline-block', padding: '16px 48px', borderRadius: 18,
+              display: 'inline-block', padding: '16px 48px', borderRadius: 'var(--r-pill)',
               fontSize: '1.05rem', fontWeight: 700, color: '#fff',
-              background: 'linear-gradient(135deg, #D4651E, #C05818)',
-              boxShadow: '0 8px 40px rgba(212,101,30,0.25)',
+              background: 'var(--accent)',
+              boxShadow: '0 8px 40px rgba(200,72,0,0.35)',
               textDecoration: 'none', transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)'
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 56px rgba(212,101,30,0.32)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 40px rgba(212,101,30,0.25)' }}>
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-h)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 56px rgba(200,72,0,0.45)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 40px rgba(200,72,0,0.35)' }}>
               Get Started — It&apos;s Free
             </Link>
           </div>
@@ -517,15 +508,15 @@ export default function HomePage() {
       </section>
 
       {/* ════════ FOOTER ════════ */}
-      <footer style={{ padding: '60px 24px', background: '#1E0F0A' }}>
+      <footer style={{ padding: '60px 24px', background: 'var(--nav)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 40, marginBottom: 48 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <AarambhLogo size={28} showText={false} />
-                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', fontWeight: 600, color: '#F5F0EB' }}>Aarambh</span>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-on-dark)' }}>Aarambh</span>
               </div>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7 }}>
+              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.8rem', color: 'var(--text-on-dark3)', lineHeight: 1.7 }}>
                 जहाँ श्रद्धा मिले सेवा से<br />
                 India&apos;s trusted platform for booking verified pandits.
               </p>
@@ -536,20 +527,20 @@ export default function HomePage() {
               { title: 'Legal', links: [['Privacy Policy', '/'], ['Terms', '/'], ['Refund Policy', '/']] },
             ].map((col, i) => (
               <div key={i}>
-                <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2.5px', color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>{col.title}</h4>
+                <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2.5px', color: 'var(--text-on-dark3)', marginBottom: 16 }}>{col.title}</h4>
                 {col.links.map(([label, href], j) => (
-                  <Link key={j} href={href} style={{ fontFamily: 'Outfit, sans-serif', display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', padding: '4px 0', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)'}>
+                  <Link key={j} href={href} style={{ fontFamily: 'Outfit, sans-serif', display: 'block', fontSize: '0.85rem', color: 'var(--text-on-dark3)', textDecoration: 'none', padding: '4px 0', transition: 'color 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-on-dark)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-on-dark3)'}>
                     {label}
                   </Link>
                 ))}
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', flexWrap: 'wrap', gap: 8 }}>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: 'rgba(255,255,255,0.25)' }}>© 2026 Aarambh. All rights reserved.</span>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: 'rgba(255,255,255,0.25)' }}>Made with ❤️ in Indore, India</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(255,240,200,0.08)', flexWrap: 'wrap', gap: 8 }}>
+            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: 'var(--text-on-dark3)' }}>© 2026 Aarambh. All rights reserved.</span>
+            <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', color: 'var(--text-on-dark3)' }}>Made with ❤️ in Indore, India</span>
           </div>
         </div>
       </footer>

@@ -104,13 +104,13 @@ export default function AddressInput({ value, onChange, onAddressSelect, placeho
           rows={3}
           className="w-full px-4 py-3 rounded-xl text-sm resize-none"
           style={{
-            background: '#FFF5EC',
-            border: '1.5px solid rgba(180,130,80,0.1)',
-            color: '#2C1810',
+            background: 'var(--input-bg)',
+            border: '1.5px solid var(--input-border)',
+            color: 'var(--text-on-light)',
             lineHeight: 1.6,
           }}
         />
-        <p style={{ fontSize: '0.7rem', color: '#B09980', marginTop: 4 }}>
+        <p style={{ fontSize: '0.7rem', color: 'var(--text-on-light3)', marginTop: 4 }}>
           Address autocomplete unavailable — please type your address manually.
         </p>
       </div>
@@ -127,15 +127,15 @@ export default function AddressInput({ value, onChange, onAddressSelect, placeho
         placeholder={placeholder || 'Start typing your address...'}
         className="w-full px-4 py-3 rounded-xl text-sm"
         style={{
-          background: '#FFF5EC',
-          border: '1.5px solid rgba(180,130,80,0.1)',
-          color: '#2C1810',
+          background: 'var(--input-bg)',
+          border: '1.5px solid var(--input-border)',
+          color: 'var(--text-on-light)',
           paddingRight: isLoaded ? '2.5rem' : undefined,
         }}
       />
       {isLoaded && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B09980" strokeWidth="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-on-light3)" strokeWidth="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
