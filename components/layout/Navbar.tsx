@@ -1,14 +1,34 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import AarambhLogo from '../AarambhLogo'
+import { usePathname } from 'next/navigation'
+
+const PAPER_NAV = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E\")"
+
+function DiyaIcon({ size = 36 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: size, height: size, flexShrink: 0 }}>
+      <ellipse cx="24" cy="38" rx="14" ry="5" fill="#D4651E" opacity="0.18"/>
+      <path d="M24 18 C20 24 14 30 10 34 C16 36 20 34 24 30 C28 34 32 36 38 34 C34 30 28 24 24 18Z" fill="#D4651E" opacity="0.2"/>
+      <path d="M24 8 C22 12 19 16 19 20 C19 23 21 26 24 26 C27 26 29 23 29 20 C29 16 26 12 24 8Z" fill="url(#ng)"/>
+      <path d="M24 12 C23 14 21.5 17 21.5 19.5 C21.5 21.5 22.5 23 24 23 C25.5 23 26.5 21.5 26.5 19.5 C26.5 17 25 14 24 12Z" fill="#FFC857" opacity="0.85"/>
+      <ellipse cx="24" cy="26" rx="5.5" ry="2" fill="#D4651E"/>
+      <ellipse cx="24" cy="26" rx="4" ry="1.2" fill="#E88030"/>
+      <defs>
+        <linearGradient id="ng" x1="24" y1="8" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FF8C00"/>
+          <stop offset="40%" stopColor="#E8732A"/>
+          <stop offset="100%" stopColor="#D4651E"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
-  const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
@@ -18,14 +38,6 @@ export default function Navbar() {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-nav-dark'] })
     setIsDark(document.documentElement.hasAttribute('data-nav-dark'))
     return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    const stored = localStorage.getItem('user')
-    if (stored) setUser(JSON.parse(stored))
-    const h = () => {}
-    window.addEventListener('scroll', h)
-    return () => window.removeEventListener('scroll', h)
   }, [])
 
   useEffect(() => {
@@ -49,144 +61,221 @@ export default function Navbar() {
 
   const isActive = (href: string) => pathname === href
 
-  const navBg = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Cfilter id=\'g\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.72\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'200\' height=\'200\' filter=\'url(%23g)\' opacity=\'0.04\'/%3E%3C/svg%3E")'
+  const navStyle: React.CSSProperties = isDark ? {
+    backgroundColor: 'rgba(10,5,2,0.85)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    borderBottom: '1px solid rgba(255,240,200,0.06)',
+    boxShadow: 'none',
+    transition: 'all 0.4s ease',
+  } : {
+    backgroundColor: '#5C2A00',
+    backgroundImage: PAPER_NAV,
+    backgroundSize: '200px 200px',
+    backdropFilter: 'none',
+    borderBottom: '1px solid rgba(255,240,200,0.08)',
+    boxShadow: '0 2px 24px rgba(0,0,0,0.2)',
+    isolation: 'isolate',
+    transition: 'all 0.4s ease',
+  }
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50"
-        style={isDark ? {
-          backgroundColor: 'transparent',
-          backgroundImage: 'linear-gradient(to bottom, rgba(5,2,0,0.55), transparent)',
-          borderBottom: 'none',
-          boxShadow: 'none',
-          transition: 'all 0.4s ease',
-        } : {
-          backgroundColor: 'var(--nav)',
-          backgroundImage: navBg,
-          backgroundSize: '200px 200px',
-          borderBottom: '1px solid rgba(255,240,200,0.08)',
-          boxShadow: '0 2px 20px rgba(44,26,8,0.2)',
-          transition: 'all 0.4s ease',
-        }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/"><AarambhLogo size={36} showText={true} /></Link>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        height: 64,
+        display: 'flex', alignItems: 'center',
+        padding: '0 40px',
+        ...navStyle,
+      }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
 
-            {/* Desktop links */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map(link => (
-                <Link key={link.href} href={link.href}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    color: isActive(link.href) ? 'var(--gold)' : 'var(--text-on-dark2)',
-                    background: isActive(link.href) ? 'rgba(224,160,32,0.12)' : 'transparent',
-                  }}>
-                  {link.label}
-                </Link>
-              ))}
+          {/* Brand */}
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <DiyaIcon size={32} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, fontSize: '1.28rem', color: '#FFF0C8', letterSpacing: '-0.2px' }}>
+                Aarambh
+              </span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.56rem', color: 'rgba(255,240,200,0.55)', letterSpacing: '0.08em', display: 'block', marginTop: 2 }}>
+                जहाँ श्रद्धा मिले सेवा से
+              </span>
             </div>
+          </Link>
 
-            {/* Desktop auth */}
-            <div className="hidden md:flex items-center gap-3">
-              {user ? (
-                <>
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-on-dark2)' }}>
-                    Hi, {user.firstName}
-                  </span>
-                  <button onClick={handleLogout}
-                    className="text-sm font-medium px-4 py-2 rounded-lg transition-all"
-                    style={{ color: 'var(--text-on-dark3)' }}>
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login"
-                    className="text-sm font-medium px-4 py-2 rounded-lg transition-all"
-                    style={{ color: 'var(--text-on-dark2)' }}>
-                    Login
-                  </Link>
-                  <Link href="/register"
-                    className="text-sm font-semibold px-5 py-2 rounded-full text-white transition-all hover:-translate-y-0.5"
-                    style={{
-                      background: 'var(--accent)',
-                      boxShadow: '0 3px 12px rgba(200,72,0,0.3)',
-                    }}>
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </div>
-
-            {/* Hamburger */}
-            <button onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg"
-              style={{ color: 'var(--text-on-dark)', background: 'rgba(255,240,200,0.08)' }}>
-              {mobileOpen ? '✕' : '☰'}
-            </button>
+          {/* Desktop nav links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hidden md:flex">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href} style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: '0.83rem',
+                color: isActive(link.href) ? '#E0A020' : 'rgba(255,240,200,0.65)',
+                background: isActive(link.href) ? 'rgba(224,160,32,0.1)' : 'transparent',
+                border: isActive(link.href) ? '1px solid rgba(224,160,32,0.2)' : '1px solid transparent',
+                borderRadius: 999,
+                padding: '6px 14px',
+                textDecoration: 'none',
+                transition: 'all 0.18s ease',
+                display: 'inline-block',
+              }}
+              onMouseEnter={e => { if (!isActive(link.href)) (e.currentTarget as HTMLElement).style.background = 'rgba(255,240,200,0.07)' }}
+              onMouseLeave={e => { if (!isActive(link.href)) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
+
+          {/* Desktop auth */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="hidden md:flex">
+            {user ? (
+              <>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.83rem', color: 'rgba(255,240,200,0.65)' }}>
+                  Hi, <span style={{ color: '#E0A020', fontWeight: 600 }}>{user.firstName}</span>
+                </span>
+                <button onClick={handleLogout} style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '0.83rem',
+                  color: 'rgba(255,240,200,0.65)',
+                  background: 'transparent',
+                  border: '1px solid rgba(255,240,200,0.15)',
+                  borderRadius: 999,
+                  padding: '5px 14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
+                }}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '0.83rem',
+                  color: 'rgba(255,240,200,0.65)',
+                  textDecoration: 'none',
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  border: '1px solid transparent',
+                  transition: 'all 0.18s ease',
+                }}>
+                  Login
+                </Link>
+                <Link href="/register" style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '0.83rem',
+                  fontWeight: 600,
+                  color: '#fff',
+                  background: '#C84800',
+                  borderRadius: 999,
+                  padding: '7px 18px',
+                  textDecoration: 'none',
+                  boxShadow: '0 3px 12px rgba(200,72,0,0.3)',
+                  transition: 'all 0.18s ease',
+                }}>
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden"
+            style={{
+              width: 40, height: 40,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 8,
+              background: 'rgba(255,240,200,0.08)',
+              border: 'none',
+              color: '#FFF0C8',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+            }}
+          >
+            {mobileOpen ? '✕' : '☰'}
+          </button>
+
         </div>
       </nav>
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 backdrop-blur-sm"
-            style={{ background: 'rgba(44,26,8,0.45)' }}
-            onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-0 right-0 h-full shadow-2xl animate-slide-in"
-            style={{
-              backgroundColor: 'var(--nav)',
-              backgroundImage: navBg,
-              backgroundSize: '200px 200px',
-              width: 'min(288px, 85vw)',
-              borderLeft: '1px solid rgba(255,240,200,0.08)',
-            }}>
-            <div className="p-5">
-              <button onClick={() => setMobileOpen(false)}
-                className="float-right w-10 h-10 flex items-center justify-center rounded-lg text-xl"
-                style={{ color: 'var(--text-on-dark3)', background: 'rgba(255,240,200,0.06)' }}>✕</button>
-              <div className="clear-both pt-4">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} className="md:hidden">
+          <div
+            style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(4px)', background: 'rgba(44,26,8,0.45)' }}
+            onClick={() => setMobileOpen(false)}
+          />
+          <div style={{
+            position: 'absolute', top: 0, right: 0, height: '100%',
+            width: 'min(288px, 85vw)',
+            backgroundColor: '#5C2A00',
+            backgroundImage: PAPER_NAV,
+            backgroundSize: '200px 200px',
+            borderLeft: '1px solid rgba(255,240,200,0.08)',
+            boxShadow: '-8px 0 40px rgba(0,0,0,0.4)',
+          }}>
+            <div style={{ padding: 20 }}>
+              <button
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  float: 'right', width: 36, height: 36,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 8, background: 'rgba(255,240,200,0.06)',
+                  border: 'none', color: 'rgba(255,240,200,0.5)', cursor: 'pointer', fontSize: '1rem',
+                }}
+              >✕</button>
+              <div style={{ clear: 'both', paddingTop: 16 }}>
                 {user && (
-                  <div className="mb-6 pb-4" style={{ borderBottom: '1px solid rgba(255,240,200,0.08)' }}>
-                    <p className="font-bold text-sm" style={{ color: 'var(--text-on-dark)' }}>
+                  <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(255,240,200,0.08)' }}>
+                    <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '0.9rem', color: '#FFF0C8' }}>
                       {user.firstName} {user.lastName}
                     </p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-on-dark3)' }}>{user.email}</p>
-                    <p className="text-xs font-semibold mt-2" style={{ color: 'var(--gold)' }}>
+                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.75rem', color: 'rgba(255,240,200,0.38)', marginTop: 2 }}>{user.email}</p>
+                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.75rem', fontWeight: 600, marginTop: 8, color: '#E0A020' }}>
                       {user.role === 'PANDIT' ? '🙏 Pandit Account' : '👨‍👩‍👧 Family Account'}
                     </p>
                   </div>
                 )}
-                <div className="space-y-1">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {navLinks.map(link => (
-                    <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                      className="block px-4 py-3 rounded-lg text-sm font-medium"
-                      style={{
-                        color: isActive(link.href) ? 'var(--gold)' : 'var(--text-on-dark2)',
-                        background: isActive(link.href) ? 'rgba(224,160,32,0.1)' : 'transparent',
-                      }}>
+                    <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} style={{
+                      display: 'block', padding: '10px 14px', borderRadius: 8,
+                      fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
+                      color: isActive(link.href) ? '#E0A020' : 'rgba(255,240,200,0.65)',
+                      background: isActive(link.href) ? 'rgba(224,160,32,0.1)' : 'transparent',
+                      textDecoration: 'none',
+                    }}>
                       {link.label}
                     </Link>
                   ))}
                 </div>
-                <div className="mt-6 pt-4 space-y-2" style={{ borderTop: '1px solid rgba(255,240,200,0.08)' }}>
+                <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,240,200,0.08)', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {user ? (
-                    <button onClick={() => { handleLogout(); setMobileOpen(false) }}
-                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium"
-                      style={{ color: 'rgba(220,100,100,0.9)' }}>
+                    <button onClick={() => { handleLogout(); setMobileOpen(false) }} style={{
+                      textAlign: 'left', padding: '10px 14px', borderRadius: 8,
+                      background: 'transparent', border: 'none', cursor: 'pointer',
+                      fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
+                      color: 'rgba(220,100,100,0.9)',
+                    }}>
                       Logout
                     </button>
                   ) : (
                     <>
-                      <Link href="/login" onClick={() => setMobileOpen(false)}
-                        className="block px-4 py-3 rounded-lg text-sm font-medium"
-                        style={{ color: 'var(--text-on-dark2)' }}>
+                      <Link href="/login" onClick={() => setMobileOpen(false)} style={{
+                        display: 'block', padding: '10px 14px', borderRadius: 8,
+                        fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
+                        color: 'rgba(255,240,200,0.65)', textDecoration: 'none',
+                      }}>
                         Login
                       </Link>
-                      <Link href="/register" onClick={() => setMobileOpen(false)}
-                        className="block px-4 py-3 rounded-full text-sm font-semibold text-center"
-                        style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 3px 12px rgba(200,72,0,0.3)' }}>
+                      <Link href="/register" onClick={() => setMobileOpen(false)} style={{
+                        display: 'block', padding: '10px 14px', borderRadius: 999,
+                        fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem', fontWeight: 600,
+                        textAlign: 'center', color: '#fff', background: '#C84800',
+                        textDecoration: 'none', boxShadow: '0 3px 12px rgba(200,72,0,0.3)',
+                      }}>
                         Get Started
                       </Link>
                     </>
