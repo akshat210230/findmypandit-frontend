@@ -7,8 +7,18 @@ import AarambhLogo from '../AarambhLogo'
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isDark, setIsDark] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.hasAttribute('data-nav-dark'))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-nav-dark'] })
+    setIsDark(document.documentElement.hasAttribute('data-nav-dark'))
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -44,12 +54,19 @@ export default function Navbar() {
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50"
-        style={{
+        style={isDark ? {
+          backgroundColor: 'transparent',
+          backgroundImage: 'linear-gradient(to bottom, rgba(5,2,0,0.55), transparent)',
+          borderBottom: 'none',
+          boxShadow: 'none',
+          transition: 'all 0.4s ease',
+        } : {
           backgroundColor: 'var(--nav)',
           backgroundImage: navBg,
           backgroundSize: '200px 200px',
           borderBottom: '1px solid rgba(255,240,200,0.08)',
           boxShadow: '0 2px 20px rgba(44,26,8,0.2)',
+          transition: 'all 0.4s ease',
         }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
