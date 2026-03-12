@@ -165,13 +165,28 @@ function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HT
           </div>
 
           <div style={{ textAlign: 'center', padding: '0 20px', transform: `translateY(${textY}px)`, opacity: textOpacity }}>
-            <div style={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.gold, marginBottom: 16, fontFamily: "'Outfit', sans-serif", animation: 'fadeUp 0.8s 0.3s ease both' }}>
-              🪔 &nbsp; Shubh Prarambh
+            <div style={{ textAlign: 'center', marginBottom: 24, pointerEvents: 'none' }}>
+              <span style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 700,
+                fontSize: 'clamp(4rem,9vw,7rem)',
+                letterSpacing: '0.06em',
+                lineHeight: 1,
+                display: 'block',
+                background: 'linear-gradient(135deg, #C8840A 0%, #E8B830 22%, #FFF5B0 45%, #F0C830 62%, #E0A020 80%, #B87010 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                backgroundSize: '200% 200%',
+                animation: 'goldShimmer 3.5s ease-in-out infinite',
+                marginBottom: 14,
+              }}>
+                Aarambh
+              </span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 400, fontSize: 'clamp(0.82rem,1.6vw,1rem)', letterSpacing: '0.28em', color: 'rgba(255,240,200,0.52)', display: 'block' }}>
+                जहाँ श्रद्धा मिले सेवा से
+              </span>
             </div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, fontSize: 'clamp(2.8rem,6vw,5rem)', lineHeight: 1.1, color: T.textOnDark, textShadow: '0 2px 40px rgba(0,0,0,0.6)', animation: 'fadeUp 0.9s 0.5s ease both', marginBottom: 16 }}>
-              Sacred rituals,<br />
-              <em style={{ color: T.gold, fontStyle: 'italic' }}>expertly performed.</em>
-            </h1>
             <p style={{ fontSize: '1rem', color: T.textOnDark2, lineHeight: 1.65, maxWidth: 480, margin: '0 auto 28px', fontFamily: "'Outfit', sans-serif", animation: 'fadeUp 0.9s 0.75s ease both' }}>
               Connect with verified pandits for every ceremony. Guided by tradition, powered by trust.
             </p>
