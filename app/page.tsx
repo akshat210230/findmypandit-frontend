@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { initScene } from '@/lib/aanganScene'
+import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero'
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -37,42 +36,6 @@ const SECTION_BG: React.CSSProperties = {
 
 // ── Root page ─────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [scrollRatio, setScrollRatio] = useState(0)
-  const [navDark, setNavDark] = useState(true)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scene = document.getElementById('hero-scene')
-      if (!scene) return
-      const total = scene.offsetHeight - window.innerHeight
-      const ratio = Math.max(0, Math.min(1, window.scrollY / total))
-      setScrollRatio(ratio)
-      setNavDark(ratio < 0.18)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    if (!canvasRef.current) return
-    const cleanup = initScene(canvasRef.current)
-    return cleanup
-  }, [])
-
-  useEffect(() => {
-    ;(window as unknown as Record<string, unknown>).__aanganScroll = scrollRatio
-  }, [scrollRatio])
-
-  useEffect(() => {
-    if (navDark) {
-      document.documentElement.setAttribute('data-nav-dark', 'true')
-    } else {
-      document.documentElement.removeAttribute('data-nav-dark')
-    }
-    return () => document.documentElement.removeAttribute('data-nav-dark')
-  }, [navDark])
-
   return (
     <>
       <style>{`
@@ -88,15 +51,6 @@ export default function HomePage() {
           0%, 100% { box-shadow: 0 4px 20px rgba(200,72,0,0.4), 0 0 0 0 rgba(200,72,0,0.3); }
           50%       { box-shadow: 0 4px 20px rgba(200,72,0,0.4), 0 0 0 8px transparent; }
         }
-        @keyframes scrollPulse {
-          0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-          50%       { opacity: 1;   transform: scaleY(1); }
-        }
-        @keyframes goldShimmer {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
         @media (max-width: 768px) {
           .services-grid { grid-template-columns: repeat(2,1fr) !important; }
           .pandits-grid  { grid-template-columns: 1fr !important; }
@@ -108,7 +62,16 @@ export default function HomePage() {
       `}</style>
 
       <main style={{ background: T.bg, fontFamily: "'Outfit', sans-serif" }}>
-        <HeroSection canvasRef={canvasRef} scrollRatio={scrollRatio} />
+        <ScrollExpandMedia
+          mediaType="image"
+          mediaSrc="https://images.unsplash.com/photo-1604423586580-0e8c5ac5ef47?q=80&w=1920&auto=format&fit=crop"
+          bgImageSrc="https://images.unsplash.com/photo-1604423586580-0e8c5ac5ef47?q=80&w=1920&auto=format&fit=crop"
+          title="Aarambh"
+          scrollToExpand="जहाँ श्रद्धा मिले सेवा से"
+          textBlend={false}
+        >
+          <div style={{ height: 0 }} />
+        </ScrollExpandMedia>
         <div style={{ height: 220, marginTop: -4, background: 'linear-gradient(to bottom, #0a0502 0%, #1a0d04 8%, #2e1608 18%, #3d1f0a 30%, #8a6040 52%, #b89060 68%, #d4b48a 82%, #e8d4b0 92%, #F0E2C8 100%)', position: 'relative', zIndex: 2 }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 100% at 50% 0%, rgba(200,120,40,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
         </div>

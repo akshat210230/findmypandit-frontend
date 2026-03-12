@@ -27,17 +27,7 @@ function DiyaIcon({ size = 36 }: { size?: number }) {
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
-  const [isDark, setIsDark] = useState(false)
   const pathname = usePathname()
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.hasAttribute('data-nav-dark'))
-    })
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-nav-dark'] })
-    setIsDark(document.documentElement.hasAttribute('data-nav-dark'))
-    return () => observer.disconnect()
-  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -60,14 +50,7 @@ export default function Navbar() {
 
   const isActive = (href: string) => pathname === href
 
-  const navStyle: React.CSSProperties = isDark ? {
-    backgroundColor: 'rgba(10,5,2,0.85)',
-    backdropFilter: 'blur(8px)',
-    WebkitBackdropFilter: 'blur(8px)',
-    borderBottom: '1px solid rgba(255,240,200,0.06)',
-    boxShadow: 'none',
-    transition: 'all 0.4s ease',
-  } : {
+  const navStyle: React.CSSProperties = {
     backgroundColor: '#5C2A00',
     backgroundImage: PAPER_NAV,
     backgroundSize: '200px 200px',
@@ -75,7 +58,6 @@ export default function Navbar() {
     borderBottom: '1px solid rgba(255,240,200,0.08)',
     boxShadow: '0 2px 24px rgba(0,0,0,0.2)',
     isolation: 'isolate',
-    transition: 'all 0.4s ease',
   }
 
   return (
