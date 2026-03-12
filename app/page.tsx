@@ -128,8 +128,6 @@ function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HT
   const textY = textPhase * -60
   const textOpacity = Math.max(0, 1 - textPhase * 1.2)
   const hintOpacity = Math.max(0, 1 - scrollRatio * 8)
-  const brandOpacity = Math.max(0, 1 - scrollRatio * 8)
-  const brandY = scrollRatio * -30
 
   return (
     <section id="hero-scene" style={{ height: '280vh', position: 'relative' }}>
@@ -139,30 +137,6 @@ function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HT
 
         {/* Text overlay */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-
-          {/* Brand reveal — fades out quickly as scroll begins */}
-          <div style={{ textAlign: 'center', opacity: brandOpacity, transform: `translateY(${brandY}px)`, transition: 'none', marginBottom: 32, pointerEvents: 'none' }}>
-            <span style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 700,
-              fontSize: 'clamp(3.5rem,8vw,6.5rem)',
-              letterSpacing: '0.04em',
-              lineHeight: 1,
-              display: 'block',
-              background: 'linear-gradient(135deg, #C8840A 0%, #E8B830 25%, #FFF0A0 45%, #F0C830 60%, #E0A020 80%, #B87010 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              backgroundSize: '200% 200%',
-              animation: 'goldShimmer 3s ease-in-out infinite',
-              marginBottom: 10,
-            }}>
-              Aarambh
-            </span>
-            <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 400, fontSize: 'clamp(0.85rem,1.8vw,1.05rem)', letterSpacing: '0.22em', color: 'rgba(255,240,200,0.55)', display: 'block' }}>
-              जहाँ श्रद्धा मिले सेवा से
-            </span>
-          </div>
 
           <div style={{ textAlign: 'center', padding: '0 20px', transform: `translateY(${textY}px)`, opacity: textOpacity }}>
             <div style={{ textAlign: 'center', marginBottom: 24, pointerEvents: 'none' }}>
