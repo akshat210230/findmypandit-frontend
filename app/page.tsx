@@ -64,7 +64,7 @@ export default function HomePage() {
       <main style={{ background: T.bg, fontFamily: "'Outfit', sans-serif" }}>
         <ScrollExpandMedia
           mediaType="image"
-          mediaSrc="https://images.unsplash.com/photo-1604423586580-0e8c5ac5ef47?q=80&w=1920&auto=format&fit=crop"
+          mediaSrc="/diwali.jpg"
           bgImageSrc="https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=1920&auto=format&fit=crop"
           title="Aarambh"
           scrollToExpand=""
