@@ -63,7 +63,7 @@ export default function Navbar() {
   return (
     <>
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: 100,
         height: 64,
         display: 'flex', alignItems: 'center',
         padding: '0 40px',
@@ -154,7 +154,7 @@ export default function Navbar() {
                   boxShadow: '0 3px 12px rgba(200,72,0,0.3)',
                   transition: 'all 0.18s ease',
                 }}>
-                  Get Started
+                  Register
                 </Link>
               </>
             )}

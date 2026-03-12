@@ -65,16 +65,18 @@ export default function HomePage() {
         <ScrollExpandMedia
           mediaType="image"
           mediaSrc="https://images.unsplash.com/photo-1604423586580-0e8c5ac5ef47?q=80&w=1920&auto=format&fit=crop"
-          bgImageSrc="https://images.unsplash.com/photo-1604423586580-0e8c5ac5ef47?q=80&w=1920&auto=format&fit=crop"
+          bgImageSrc="https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=1920&auto=format&fit=crop"
           title="Aarambh"
-          scrollToExpand="जहाँ श्रद्धा मिले सेवा से"
+          scrollToExpand=""
           textBlend={false}
-        >
-          <div style={{ height: 0 }} />
-        </ScrollExpandMedia>
-        <div style={{ height: 220, marginTop: -4, background: 'linear-gradient(to bottom, #0a0502 0%, #1a0d04 8%, #2e1608 18%, #3d1f0a 30%, #8a6040 52%, #b89060 68%, #d4b48a 82%, #e8d4b0 92%, #F0E2C8 100%)', position: 'relative', zIndex: 2 }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 100% at 50% 0%, rgba(200,120,40,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
-        </div>
+        />
+        <div style={{
+          height: 160,
+          background: 'linear-gradient(to bottom, #0d0804 0%, #1e0f06 12%, #3a1e0a 28%, #6b3a18 46%, #a06030 62%, rgba(200,144,96,0.31) 76%, #e8c8a0 88%, #F0E2C8 100%)',
+          marginTop: -4,
+          position: 'relative',
+          zIndex: 2,
+        }} />
         <ServicesSection />
         <SamagriSection />
         <HowItWorksSection />
@@ -82,72 +84,6 @@ export default function HomePage() {
         <Footer />
       </main>
     </>
-  )
-}
-
-// ── Hero ──────────────────────────────────────────────────────────────────────
-function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HTMLCanvasElement>; scrollRatio: number }) {
-  const textPhase = Math.max(0, (scrollRatio - 0.25) / 0.35)
-  const textY = textPhase * -60
-  const textOpacity = Math.max(0, 1 - textPhase * 1.2)
-  const hintOpacity = Math.max(0, 1 - scrollRatio * 8)
-
-  return (
-    <section id="hero-scene" style={{ height: '280vh', position: 'relative' }}>
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
-
-        <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />
-
-        {/* Text overlay */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-
-          <div style={{ textAlign: 'center', padding: '0 20px', transform: `translateY(${textY}px)`, opacity: textOpacity }}>
-            <div style={{ textAlign: 'center', marginBottom: 24, pointerEvents: 'none' }}>
-              <span style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontWeight: 700,
-                fontSize: 'clamp(4rem,9vw,7rem)',
-                letterSpacing: '0.06em',
-                lineHeight: 1,
-                display: 'block',
-                background: 'linear-gradient(135deg, #C8840A 0%, #E8B830 22%, #FFF5B0 45%, #F0C830 62%, #E0A020 80%, #B87010 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                backgroundSize: '200% 200%',
-                animation: 'goldShimmer 3.5s ease-in-out infinite',
-                marginBottom: 14,
-              }}>
-                Aarambh
-              </span>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 400, fontSize: 'clamp(0.82rem,1.6vw,1rem)', letterSpacing: '0.28em', color: 'rgba(255,240,200,0.52)', display: 'block' }}>
-                जहाँ श्रद्धा मिले सेवा से
-              </span>
-            </div>
-            <p style={{ fontSize: '1rem', color: T.textOnDark2, lineHeight: 1.65, maxWidth: 480, margin: '0 auto 28px', fontFamily: "'Outfit', sans-serif", animation: 'fadeUp 0.9s 0.75s ease both' }}>
-              Connect with verified pandits for every ceremony. Guided by tradition, powered by trust.
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, flexWrap: 'wrap', animation: 'fadeUp 1s 1s ease both', pointerEvents: 'all' }}>
-              <Link href="/search" style={{ background: T.accent, color: '#fff', borderRadius: 999, padding: '13px 32px', fontSize: '0.95rem', fontWeight: 600, fontFamily: "'Outfit', sans-serif", textDecoration: 'none', display: 'inline-block', animation: 'pulseRing 2.5s ease-in-out infinite' }}>
-                Book a Pandit
-              </Link>
-              <Link href="/services" style={{ background: 'transparent', color: T.textOnDark2, border: '1.5px solid rgba(255,240,200,0.25)', borderRadius: 999, padding: '12px 28px', fontSize: '0.92rem', fontFamily: "'Outfit', sans-serif", textDecoration: 'none', display: 'inline-block' }}>
-                Browse Ceremonies
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll hint */}
-        <div style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 25, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, opacity: hintOpacity, transition: 'opacity 0.3s' }}>
-          <span style={{ fontSize: '0.65rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(224,160,32,0.5)', fontFamily: "'Outfit', sans-serif" }}>
-            Scroll to enter
-          </span>
-          <div style={{ width: 1, height: 40, background: 'linear-gradient(to bottom, transparent, rgba(224,160,32,0.6))', animation: 'scrollPulse 1.8s ease-in-out infinite' }} />
-        </div>
-
-      </div>
-    </section>
   )
 }
 

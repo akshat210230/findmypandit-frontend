@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, ReactNode } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
 interface ScrollExpandMediaProps {
@@ -10,14 +10,12 @@ interface ScrollExpandMediaProps {
   title: string
   scrollToExpand?: string
   textBlend?: boolean
-  children?: ReactNode
 }
 
 export default function ScrollExpandMedia({
   mediaType,
   mediaSrc,
   title,
-  children,
 }: ScrollExpandMediaProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -46,8 +44,8 @@ export default function ScrollExpandMedia({
           100% { background-position: 0% 50%; }
         }
         @keyframes scrollPulse {
-          0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-          50%       { opacity: 1;   transform: scaleY(1); }
+          0%, 100% { opacity: 0.3; }
+          50%       { opacity: 1; }
         }
       `}</style>
 
@@ -88,9 +86,10 @@ export default function ScrollExpandMedia({
 
             {/* Dark overlay */}
             <motion.div
-              className="absolute inset-0 bg-black/50 rounded-xl"
-              initial={{ opacity: 0.55 }}
-              animate={{ opacity: Math.max(0, 0.55 - scrollProgress * 0.35) }}
+              className="absolute inset-0 bg-black/40 rounded-xl"
+              style={{ pointerEvents: 'none' }}
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: Math.max(0, 0.5 - scrollProgress * 0.35) }}
             />
 
             {/* Title overlay */}
@@ -103,7 +102,7 @@ export default function ScrollExpandMedia({
             }}>
               <div
                 className="flex flex-col items-center justify-center text-center w-full relative z-10"
-                style={{ transform: 'translateX(0)' }}
+                style={{ transform: 'translateX(0)', padding: '0 20px' }}
               >
                 <span style={{
                   fontFamily: "'Cormorant Garamond', serif",
@@ -126,13 +125,41 @@ export default function ScrollExpandMedia({
                 <span style={{
                   fontFamily: "'Outfit', sans-serif",
                   fontWeight: 400,
-                  fontSize: 'clamp(0.82rem, 1.6vw, 1rem)',
-                  letterSpacing: '0.28em',
+                  fontSize: 'clamp(0.95rem, 1.8vw, 1.15rem)',
+                  letterSpacing: '0.06em',
                   color: 'rgba(255,240,200,0.65)',
                   display: 'block',
                 }}>
                   जहाँ श्रद्धा मिले सेवा से
                 </span>
+                <p style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '1rem',
+                  color: 'rgba(255,240,200,0.65)',
+                  lineHeight: 1.65,
+                  maxWidth: 480,
+                  margin: '20px auto 0',
+                  textAlign: 'center',
+                }}>
+                  Connect with verified pandits for every ceremony.<br />
+                  Guided by tradition, powered by trust.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 24, flexWrap: 'wrap', pointerEvents: 'all' }}>
+                  <a href="/search" style={{
+                    background: '#C84800', color: '#fff', borderRadius: 999,
+                    padding: '13px 32px', fontSize: '0.95rem', fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif", textDecoration: 'none',
+                    boxShadow: '0 4px 20px rgba(200,72,0,0.4)',
+                    display: 'inline-block',
+                  }}>Book a Pandit</a>
+                  <a href="/services" style={{
+                    background: 'transparent', color: 'rgba(255,240,200,0.8)',
+                    border: '1.5px solid rgba(255,240,200,0.28)', borderRadius: 999,
+                    padding: '12px 28px', fontSize: '0.92rem',
+                    fontFamily: "'Outfit', sans-serif", textDecoration: 'none',
+                    display: 'inline-block',
+                  }}>Browse Ceremonies</a>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -140,7 +167,7 @@ export default function ScrollExpandMedia({
           {/* Scroll hint */}
           <div style={{
             position: 'absolute',
-            bottom: 32,
+            bottom: 28,
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
@@ -152,23 +179,22 @@ export default function ScrollExpandMedia({
             pointerEvents: 'none',
           }}>
             <span style={{
-              fontSize: '0.65rem',
-              letterSpacing: '0.14em',
+              fontSize: '0.62rem',
+              letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              color: 'rgba(224,160,32,0.6)',
+              color: 'rgba(224,160,32,0.55)',
               fontFamily: "'Outfit', sans-serif",
             }}>
-              Scroll to enter
+              SCROLL TO ENTER
             </span>
             <div style={{
               width: 1,
-              height: 40,
-              background: 'linear-gradient(to bottom, transparent, rgba(224,160,32,0.6))',
+              height: 36,
+              background: 'linear-gradient(to bottom, transparent, rgba(224,160,32,0.5))',
               animation: 'scrollPulse 1.8s ease-in-out infinite',
             }} />
           </div>
 
-          {children}
         </div>
       </section>
     </>
