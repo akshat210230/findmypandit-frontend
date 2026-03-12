@@ -92,6 +92,11 @@ export default function HomePage() {
           0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
           50%       { opacity: 1;   transform: scaleY(1); }
         }
+        @keyframes goldShimmer {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
         @media (max-width: 768px) {
           .services-grid { grid-template-columns: repeat(2,1fr) !important; }
           .pandits-grid  { grid-template-columns: 1fr !important; }
@@ -104,7 +109,9 @@ export default function HomePage() {
 
       <main style={{ background: T.bg, fontFamily: "'Outfit', sans-serif" }}>
         <HeroSection canvasRef={canvasRef} scrollRatio={scrollRatio} />
-        <div style={{ height: 120, background: `linear-gradient(to bottom, #0a0502, ${T.bg})`, marginTop: -2 }} />
+        <div style={{ height: 220, marginTop: -4, background: 'linear-gradient(to bottom, #0a0502 0%, #1a0d04 8%, #2e1608 18%, #3d1f0a 30%, #8a6040 52%, #b89060 68%, #d4b48a 82%, #e8d4b0 92%, #F0E2C8 100%)', position: 'relative', zIndex: 2 }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 100% at 50% 0%, rgba(200,120,40,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
+        </div>
         <ServicesSection />
         <SamagriSection />
         <HowItWorksSection />
@@ -121,6 +128,8 @@ function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HT
   const textY = textPhase * -60
   const textOpacity = Math.max(0, 1 - textPhase * 1.2)
   const hintOpacity = Math.max(0, 1 - scrollRatio * 8)
+  const brandOpacity = Math.max(0, 1 - scrollRatio * 8)
+  const brandY = scrollRatio * -30
 
   return (
     <section id="hero-scene" style={{ height: '280vh', position: 'relative' }}>
@@ -130,6 +139,31 @@ function HeroSection({ canvasRef, scrollRatio }: { canvasRef: React.RefObject<HT
 
         {/* Text overlay */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+
+          {/* Brand reveal — fades out quickly as scroll begins */}
+          <div style={{ textAlign: 'center', opacity: brandOpacity, transform: `translateY(${brandY}px)`, transition: 'none', marginBottom: 32, pointerEvents: 'none' }}>
+            <span style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 700,
+              fontSize: 'clamp(3.5rem,8vw,6.5rem)',
+              letterSpacing: '0.04em',
+              lineHeight: 1,
+              display: 'block',
+              background: 'linear-gradient(135deg, #C8840A 0%, #E8B830 25%, #FFF0A0 45%, #F0C830 60%, #E0A020 80%, #B87010 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              backgroundSize: '200% 200%',
+              animation: 'goldShimmer 3s ease-in-out infinite',
+              marginBottom: 10,
+            }}>
+              Aarambh
+            </span>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 400, fontSize: 'clamp(0.85rem,1.8vw,1.05rem)', letterSpacing: '0.22em', color: 'rgba(255,240,200,0.55)', display: 'block' }}>
+              जहाँ श्रद्धा मिले सेवा से
+            </span>
+          </div>
+
           <div style={{ textAlign: 'center', padding: '0 20px', transform: `translateY(${textY}px)`, opacity: textOpacity }}>
             <div style={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.gold, marginBottom: 16, fontFamily: "'Outfit', sans-serif", animation: 'fadeUp 0.8s 0.3s ease both' }}>
               🪔 &nbsp; Shubh Prarambh

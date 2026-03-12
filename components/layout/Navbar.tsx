@@ -27,7 +27,6 @@ function DiyaIcon({ size = 36 }: { size?: number }) {
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const pathname = usePathname()
 
@@ -88,7 +87,7 @@ export default function Navbar() {
         padding: '0 40px',
         ...navStyle,
       }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
 
           {/* Brand */}
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -104,7 +103,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hidden md:flex">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {navLinks.map(link => (
               <Link key={link.href} href={link.href} style={{
                 fontFamily: "'Outfit', sans-serif",
@@ -127,7 +126,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop auth */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="hidden md:flex">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {user ? (
               <>
                 <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.83rem', color: 'rgba(255,240,200,0.65)' }}>
@@ -179,113 +178,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Hamburger */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden"
-            style={{
-              width: 40, height: 40,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              borderRadius: 8,
-              background: 'rgba(255,240,200,0.08)',
-              border: 'none',
-              color: '#FFF0C8',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-            }}
-          >
-            {mobileOpen ? '✕' : '☰'}
-          </button>
-
         </div>
       </nav>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} className="md:hidden">
-          <div
-            style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(4px)', background: 'rgba(44,26,8,0.45)' }}
-            onClick={() => setMobileOpen(false)}
-          />
-          <div style={{
-            position: 'absolute', top: 0, right: 0, height: '100%',
-            width: 'min(288px, 85vw)',
-            backgroundColor: '#5C2A00',
-            backgroundImage: PAPER_NAV,
-            backgroundSize: '200px 200px',
-            borderLeft: '1px solid rgba(255,240,200,0.08)',
-            boxShadow: '-8px 0 40px rgba(0,0,0,0.4)',
-          }}>
-            <div style={{ padding: 20 }}>
-              <button
-                onClick={() => setMobileOpen(false)}
-                style={{
-                  float: 'right', width: 36, height: 36,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: 8, background: 'rgba(255,240,200,0.06)',
-                  border: 'none', color: 'rgba(255,240,200,0.5)', cursor: 'pointer', fontSize: '1rem',
-                }}
-              >✕</button>
-              <div style={{ clear: 'both', paddingTop: 16 }}>
-                {user && (
-                  <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(255,240,200,0.08)' }}>
-                    <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '0.9rem', color: '#FFF0C8' }}>
-                      {user.firstName} {user.lastName}
-                    </p>
-                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.75rem', color: 'rgba(255,240,200,0.38)', marginTop: 2 }}>{user.email}</p>
-                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '0.75rem', fontWeight: 600, marginTop: 8, color: '#E0A020' }}>
-                      {user.role === 'PANDIT' ? '🙏 Pandit Account' : '👨‍👩‍👧 Family Account'}
-                    </p>
-                  </div>
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {navLinks.map(link => (
-                    <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} style={{
-                      display: 'block', padding: '10px 14px', borderRadius: 8,
-                      fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
-                      color: isActive(link.href) ? '#E0A020' : 'rgba(255,240,200,0.65)',
-                      background: isActive(link.href) ? 'rgba(224,160,32,0.1)' : 'transparent',
-                      textDecoration: 'none',
-                    }}>
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-                <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,240,200,0.08)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {user ? (
-                    <button onClick={() => { handleLogout(); setMobileOpen(false) }} style={{
-                      textAlign: 'left', padding: '10px 14px', borderRadius: 8,
-                      background: 'transparent', border: 'none', cursor: 'pointer',
-                      fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
-                      color: 'rgba(220,100,100,0.9)',
-                    }}>
-                      Logout
-                    </button>
-                  ) : (
-                    <>
-                      <Link href="/login" onClick={() => setMobileOpen(false)} style={{
-                        display: 'block', padding: '10px 14px', borderRadius: 8,
-                        fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem',
-                        color: 'rgba(255,240,200,0.65)', textDecoration: 'none',
-                      }}>
-                        Login
-                      </Link>
-                      <Link href="/register" onClick={() => setMobileOpen(false)} style={{
-                        display: 'block', padding: '10px 14px', borderRadius: 999,
-                        fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem', fontWeight: 600,
-                        textAlign: 'center', color: '#fff', background: '#C84800',
-                        textDecoration: 'none', boxShadow: '0 3px 12px rgba(200,72,0,0.3)',
-                      }}>
-                        Get Started
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }
